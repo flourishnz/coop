@@ -116,7 +116,7 @@ function summariseOrders(orders){// selects and sorts non-zero entries
 
 
 function showTweakbar(data){
-  var template = HtmlService.createTemplateFromFile('Tweakbar');
+  var template = HtmlService.createTemplateFromFile('tweakbar');
   template.data = data
   var ui = template.evaluate()
                    .setTitle('Order details');
