@@ -28,6 +28,7 @@ function rollover() {//Rollover order - preparing new sheet
   if (okToRollover()){
     //var ss = SpreadsheetApp.getActiveSpreadsheet();
     // or, better still, copy sheet
+    deleteRunLog();
     
     setStatus("Not ready");
     setRolledOver();        // if it falls over and is incomplete, we do not want to be able to run it again without cleaning up the mess
@@ -39,12 +40,12 @@ function rollover() {//Rollover order - preparing new sheet
     deletePreTweakSheet();
     deleteChangeLog();
 
+
     refreshFormulae(); 
     addMembers();
     
     notify("Spreadsheet is ready for updating.")
 
-    // Add users
     // Remove users
     
     // Roster
@@ -214,17 +215,12 @@ function copyNamedRange(source, dest) {
 }
 
 function deleteChangeLog(){// clear from second row to end, keep formatting
-  Logger.log(SpreadsheetApp.getActive().getName())
-   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Change Log")
-    Logger.log( sheet.getName())
-  Logger.log( sheet.getLastRow())
-  Logger.log(sheet.getLastColumn())
- 
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Change Log")
   sheet.getRange(2, 1, sheet.getLastRow(), sheet.getLastColumn()).clearContent().clearNote()
+}
 
-  Logger.log( sheet.getName())
-  Logger.log( sheet.getLastRow())
-  Logger.log(sheet.getLastColumn())
+function deleteRunLog(){
+  SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Run Log").clear()
 }
 
 function notifyNow() {
