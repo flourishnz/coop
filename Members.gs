@@ -124,7 +124,7 @@ function insertColumn(sheet) {
 //// MEMBERS
 //
 //
-function getMembers(){// array of objects
+function getMembers(){// returns array of objects
   var ss = SpreadsheetApp.getActiveSpreadsheet()
   var data = ss.getRangeByName("mem_Data").getValues()
   var members = []

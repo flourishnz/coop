@@ -1,0 +1,28 @@
+<!-- Used for tweaking -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    
+<!-- This CSS package applies Google styling; it should always be included. -->
+<link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons1.css">
+<style>
+ div { padding: 20px; border: 1px solid gray; }
+</style>
+
+  </head>
+  <body>
+  <div>
+    <h2>          
+       <?= data[0] ?>
+     </h2>
+    <table>
+      <? for (var i = 1; i < data.length; i++) { ?>
+        <tr>
+            <td><?= data[i] ?></td>
+        </tr>
+      <? } ?>
+    </table>
+    </div>
+  </body>
+</html>
