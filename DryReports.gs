@@ -24,7 +24,6 @@ function createReportPickupChecklist() {
  header.replaceText('%DATE%', Utilities.formatDate(packDate, "GMT+12:00", "EEEE, d MMMM yyyy"))
   
   // Create table
-
  
   var table = body.appendTable(data)
   table.setColumnWidth(0, 25)           // for tick box
@@ -74,10 +73,10 @@ function createReportPickupChecklist() {
   copyFile.setTrashed(true)
   
   
-} // createRepMembersWhoOrdered()
+}
 
 
-function getMembersWhoOrdered(){
+function getMembersWhoOrdered(){// returns array
   var ss = SpreadsheetApp.getActiveSpreadsheet()
   var headers = isDRY && ss.getRangeByName('ord_Headers').getValues() || ss.getRangeByName('tot_Headers').getValues()
   var data = []
