@@ -1,4 +1,6 @@
-//
+// STATEMENTS
+// v0.2
+
 // Developing May-June 2018
 
 //function showDialog(data) {
@@ -14,6 +16,7 @@
 //...still to do 
 // updateEmail
 // updateID ?
+
 
 function testStatements(){
 //  var id = "3102"
@@ -317,7 +320,7 @@ function getLatestTotals(optID){
   var totals = getTotals(ssObj)
   var re = /^\d{4}$/
 
-  if (isId(ID)) {     
+  if (isValidId(ID)) {     
     return totals[ID]
   }
   else {
@@ -376,7 +379,7 @@ function getTotals(ssObj){//tested for Fresh only
     member = transBalances[i];
     id = member[iIDs].toString()
     
-    if (isId(id)) {
+    if (isValidId(id)) {
       totals = {
         ID: id,
         Name: member[iNames],
@@ -406,7 +409,7 @@ function getTotals(ssObj){//tested for Fresh only
 
 
 
-function isId(id) {
+function isValidId(id) {
   return /^\d{4}$/.test(id)
 }
 
