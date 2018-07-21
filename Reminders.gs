@@ -1,5 +1,5 @@
 // REMINDERS
-// v0.7
+// v0.7f
 
 // merged/synched 4-Mar-18
  
@@ -20,7 +20,7 @@ function sendReminderSMS(){
 //                  "https://docs.google.com/spreadsheets/d/1TIvspN97J305bRWz6Ob9aHozu1eQ_Pp3HOf-O6byp1k/edit#gid=18 "
 //var message = "FRESH Co-op orders are open unil 10am MONDAY"
   
-    var message = "A reminder to Fresh co-op members who have not yet ordered:\n  FRESH Orders will close TODAY at " + CLOSE_TIME + 
+    var message = "A reminder to Fresh co-op members who have not yet ordered:\n  FRESH Orders will close " + CLOSE_DAY +" at " + CLOSE_TIME + 
     ".  "          //\n Please take a moment to order - the co-op works best when most members order. "  
 
   var mobile

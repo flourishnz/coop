@@ -1,0 +1,29 @@
+gfhgfdjgdjgdjhgd
+<script
+  src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js">
+</script>
+
+<script>
+// The code in this function runs when the page is loaded.
+$(function() {
+  google.script.run.withSuccessHandler(showThings)
+      .getLotsOfThings();
+});
+
+function showThings(things) {
+  var list = $('#things');
+  list.empty();
+  for (var i = 0; i < things.length; i++) {
+    list.append('<li>' + things[i] + '</li>');
+  }
+}
+</script>
+
+<script>
+  window.addEventListener('load', function() {
+    console.log('Page is loaded');
+  });
+  document.getElementById("time").innerHTML = "this line works!";
+  document.getElementById{"tweakup"}.innerHTML = getPureFresh();
+
+</script>
