@@ -140,12 +140,13 @@ function onEdit(e){
     var editedUserName = srcSheet.getRange(USERNAME_ROW, col).getValue()
     var product = srcSheet.getRange(row, PRODUCT_COLUMN).getValue()
 
-    var newValue = e.value
-    if (isNumeric(e.value)){// could be object representing previous value
-      var newValue = e.value} 
-    else {
-      var newValue = ""
-    }
+    //var newValue = e.value
+//    if (isNumeric(e.value)){// could be object representing previous value
+//      var newValue = e.value} 
+//    else {
+//      var newValue = ""
+//    }
+    var newValue = (typeof e.value == "object" ? e.range.getValue() : e.value)
     
     var oldValue = e.oldValue || ""                  // e.oldValue could be "undefined"
     var entry = [new Date(), 
@@ -159,9 +160,26 @@ function onEdit(e){
     logSheet.appendRow(entry)
     
     makeToast(e)
-  }
-}
+  } 
+  else 
+    if (srcSheet.getName() === "Members"){
+      var newValue = (typeof e.value == "object" ? e.range.getValue() : e.value); 
+      var oldValue = e.oldValue || ""                  // e.oldValue could be "undefined"
 
+      var col = e.range.getColumn()
+      var row = e.range.getRow()
+      var editedId = srcSheet.getRange(row, MEM_ID_OFFSET+1).getValue()
+      var editedName = srcSheet.getRange(row, MEM_ID_OFFSET+2).getValue()
+//      log(["Member change detected", editedName, editedId, 'Old: ' + oldValue, 'New: ' + newValue ])
+
+      if (isValidId(editedId) && editedName.length > 0) {
+        var member = getMember(row)
+        CoopCoopLib.addMemberToContacts(member)
+        log(["Member updated", editedName, editedId, 'Old: ' + oldValue, 'New: ' + newValue])
+      }
+    }
+}
+  
 
 function makeToast(e){
   if (isNumeric(e.value)){   

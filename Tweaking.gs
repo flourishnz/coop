@@ -37,16 +37,6 @@ function createSheetPreTweaks(){
 }
 
 
-
-//-------one approach
-
-//function getPureFresh(){
-//  var range = SpreadsheetApp.getActive().getRangeByName("ord_FreshDirect_Orders")
-//  var data = range.getValues()
-//  return data
-//}
-//
-
 function getProduct(arg){// argument is either row name or name of product
   var ss = SpreadsheetApp.getActive()
   var data = ss.getRangeByName("ord_FreshDirect_Orders").getValues()

@@ -57,8 +57,7 @@ function lockSheet(sheet, desc){ // Add sheet protection
      if (protection[i].getDescription() == 'Edit when locked'){// copy protection
        var editors = protection[i].getEditors()
        var sProtection = sheet.protect().setDescription(desc)
-       
-       
+           
        // Ensure the current user is an editor before removing others. Otherwise, if the user's edit
        // permission comes from a group, the script will throw an exception upon removing the group.
        var me = Session.getEffectiveUser();
@@ -69,6 +68,7 @@ function lockSheet(sheet, desc){ // Add sheet protection
    }
  } else {
    // lock it
+   sheet.protect().setDescription(desc)
  }
 }
 
