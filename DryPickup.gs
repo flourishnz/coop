@@ -37,7 +37,7 @@ function createReportDryPickupLists() {
   // Document Heading - set the packdate
   header.replaceText('%PACKDATE%', Utilities.formatDate(packDate, "GMT+12:00", "EEEE, d MMMM yyyy"))
 
-  var memberOrders = getDryOrdersByMember()
+  var memberOrders = getDryOrdersByMember().reverse()
 
   
   //------------------------------------------------------------------------------------------------
