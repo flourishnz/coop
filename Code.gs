@@ -37,8 +37,10 @@ if (isFresh()) {
 
   MEMBERSHIP_FEE = 75
   MEM_ID_OFFSET = 1 // MEMBERS SHEET
+  TOT_ID_ROW = 3
+  
   CLOSE_DAY = "Monday"
-  CLOSE_TIME = "10:00 pm"
+  CLOSE_TIME = "09:00 am"
   MIN_ORDER_FEE = 5
 }
 
@@ -57,6 +59,8 @@ if (isDry()) {
   
   MEMBERSHIP_FEE = 25
   MEM_ID_OFFSET = 0 // MEMBERS SHEET
+  TOT_ID_ROW = 2
+
   CLOSE_DAY = "Sunday"
   CLOSE_TIME = "8:00 pm"
   MIN_ORDER_FEE = 2
@@ -86,6 +90,7 @@ function onOpen() {
         
       .addSubMenu(SpreadsheetApp.getUi()
                   .createMenu('Structural')
+                    .addItem('Remove this member', 'removeThisMember')
                     .addItem('Rollover', 'rollover')
                     .addItem('Refresh Formulae', 'refreshFormulae')
                     .addItem('Test statements', 'testStatements')
