@@ -14,6 +14,7 @@
 //}
 
 //...still to do 
+// move contacts code to CoopCoopLib
 // updateEmail
 // updateID ?
 
@@ -27,218 +28,6 @@ function testStatements(){
   var rtn = getFreshContacts()
   var data = "Got " + rtn.length + " contacts"
   showDialog(data)
-}
-
-
-function testMC(){
-  //var members = getMembers()
-  var member = {name: "my test", id: "9998", email: "about@example.com", homePhone: 432432,               address: "321 Lets Drive"}
-//  var member = {name: "my test", id: "9998", email: "about@example.com", mobile: "123", address: "321 Lets Drive"}
-  addMemberToContacts(member)
-
-  var member = {name: "my test", id: "9998", email: "about@example.com", mobile: "123", address: "321 Lets Drive"}
-  addMemberToContacts(member)
-}
-
-
-function addMemberToContacts(member) {
-  var coopGroup = ContactsApp.getContactGroup("Co-op members")
-
-  if (!coopGroup){
-    log(["Cannot access Co-op Contacts from this account", member])
-    return
-  }
-  
-  var contacts = ContactsApp.getContactsByName(member.name)
-  if (contacts.length == 0) {
-    addContact(member, coopGroup)
-  } else if (contacts.length == 1){
-    updateContact(contacts[0], member, coopGroup)
-  } else {//... handle this better - alert - etc
-    log(["Multiple contacts exist with this name. Not updated", member])
-  }
-}
-
-
-function addContact(member, group){
-//    log(["Request to add contact", member, "just logging requests"])
-//    return
-  var firstName = member.name.split(" ")[0]
-  var theRest = member.name.substring(firstName.length+1, member.name.length)
-  var contact = ContactsApp.createContact(firstName, theRest, member.email)
-  if (member.homePhone)   {contact.addPhone("Home", member.homePhone)}
-  if (member.mobile) {contact.addPhone("Mobile", member.mobile)}
-  if (member.homeAddress) {contact.addAddress(ContactsApp.Field.HOME_ADDRESS, member.address)}
-  
-  setID(contact, member.id)
-  
-  contact.addToGroup(group)
-  
-  // add contact to system Contacts group or will not be able to manually edit contact
-  contact.addToGroup(ContactsApp.getContactGroup("System Group: My Contacts"))
-
-  log(["Added member to contacts", member])
-}  
-
-
-function updateContact(contact, member, coopGroup){
-  var groups  
-  var exCoopGroup = ContactsApp.getContactGroup("Ex members")
-
-  // Id  
-  if (!hasID(contact)) {
-    setID(contact, member.id)
-    
-    // add to members group unless already in members group or in ex Members group
-    groups = contact.getContactGroups()
-//    if (!_.){
-//      contact.addToGroup(coopGroup)
-//    }
-
-  } else {
-    if (member.id !== getID(contact)){
-      log(["ERROR updating contact", "Member id is different from the id already recorded in the contact", member, getID(contact) ])
-      return
-    }
-  }
-  
-  // other fields
-  updateMobile(contact, member.mobile)
-  updateHomePhone(contact, member.homePhone)
-  updateAddress(contact, member.address)
-  updateAddress(contact, member.address)
-
-  
-                                 
-  // ...Email...
-  
-}
-
-
-function updateMobile(contact, mobile) {
-  var phones = contact.getPhones('Mobile') 
-  if (!mobile) {
-    for (var p in phones) {
-      log(['Contact Updated', 'Removed mobile number from', contact.getFullName(), phones[p].getPhoneNumber()])
-      phones[p].deletePhoneField()
-    }
-    return
-  }
-  
-  if (phones.length == 0) {
-    contact.addPhone("Mobile", mobile)
-    log(['Contact Updated', 'Added mobile number for', contact.getFullName(), mobile])
-  } else {
-    if (mobile !== phones[0].getPhoneNumber()) {
-      log(['Contact Updated', 'Changed mobile number for', contact.getFullName(), 'from '+ phones[0].getPhoneNumber(), 'to '+ mobile])
-      phones[0].setPhoneNumber(mobile).setLabel("Mobile")
-    }
-  }
-}
-
-function updateHomePhone(contact, homephone) {
-  var phones = contact.getPhones("Home") 
-  if (!homephone) {
-    for (var p in phones) {
-      log(['Contact Updated', 'Removed home phone number from', contact.getFullName(), phones[p].getPhoneNumber()])
-      phones[p].deletePhoneField()
-    }
-    return
-  }
-  
-  if (phones.length == 0) {
-    contact.addPhone("Home", homephone)
-    log(['Contact Updated', 'Added home phone number for', contact.getFullName(), homephone])
-  } else {
-    if (homephone !== phones[0].getPhoneNumber()) {
-      log(['Contact Updated', 'Changed home phone number for', contact.getFullName(), 'from '+ phones[0].getPhoneNumber(), 'to '+ homephone])
-      phones[0].setPhoneNumber(homephone).setLabel("Home")
-    }
-  }
-}
-
-function updateAddress(contact, address) {
-  var addresses = contact.getAddresses('Home') 
-  if (!address) {
-    for (var p in addresses) {
-      log(['Contact Updated', 'Removed address from', contact.getFullName(), addresses[p].getAddress()])
-      addresses[p].deleteAddressField()
-    }
-    return
-  }
-  
-  if (addresses.length == 0) {
-    contact.addAddress("Home", address)
-    log(['Contact Updated', 'Added address for', contact.getFullName(), address])
-  } else {
-    if (address !== addresses[0].getAddress()) {//address changed
-      log(['Contact Updated', 'Changed address for', contact.getFullName(), 'from '+ addresses[0].getAddress(), 'to '+ address])
-      addresses[0].setAddress(address).setLabel("Home")
-    }
-  }
-}
-
-function updateEmail(contact, email) {
-  var emails = contact.getEmails() 
-  if (!email) {
-    for (var e in emails) {
-      log(['Contact Updated', 'Removed email address from', contact.getFullName(), emails[e].getAddress()])
-      emails[e].deleteEmailField()
-    }
-    return
-  }
-  
-  if (emails.length == 0) {
-    contact.addEmail("Other", email)
-    log(['Contact Updated', 'Added email address for', contact.getFullName(), email])
-  } else {
-    if (email !== emails[0].getAddress()) {
-      log(['Contact Updated', 'Changed email address for', contact.getFullName(), 'from '+ emails[0].getEmail(), 'to '+ email])
-      emails[0].setEmailAddress(email).setLabel("Email")
-    }
-  }
-}
-
-function hasID(contact) {
-  var fields = contact.getCustomFields()
-  var fresh = isFRESH
-  for (var i =0; i < fields.length; i++) {
-    if (fresh && fields[i].getLabel() == 'Fresh ID' || !fresh && fields[i].getLabel() == 'Dry ID') {return true}
-  }
-  return false
-}
-
-function setID(contact, id) {
-  if (isFRESH) {
-    contact.addCustomField("Fresh ID", id)
-  } else {
-    contact.addCustomField("Dry ID", id)
-  }
-}
-
-function getID(contact) {
-  var fields = contact.getCustomFields("Fresh ID")
-  if (isFRESH) {
-    contact.getCustomFields("Fresh ID")
-  } else {
-    contact.getCustomFields("Dry ID")
-  }
-  
-  if (fields.length == 0) {
-    return ""
-  } else {
-    if (fields.length == 1) {
-      return fields[0].getValue()
-    } else {
-      log(["ERROR contact has " + fields.length + " id fields", {name: contact.getFullName(), id: fields[0].getValue()}])
-      return fields[0].getValue()
-    }
-  }
-}
-
-function getFreshContacts() {
-  var contacts = ContactsApp.getContactGroup("Co-op members").getContacts()
-  //return contacts.filter(function (i) {return hasID(i)})
 }
 
 
@@ -414,3 +203,16 @@ function isValidId(id) {
 }
 
 
+/*--------------------------------------------------------
+getMembers() - [objects] from Members tab
+
+adddMemberToContacts(member) - if member not in contacts addContact
+                               else if member in once then updateContact
+                               else fail
+                               
+addContact(member, group)
+updateContact(member, group)
+
+                               
+                          
+-----------------------------------------------------------*/
