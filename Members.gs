@@ -27,7 +27,7 @@ function Member() {
   
   this.getCurrentBalance = function(){
     var balances = ss.getRangeByName("tot_Current_Balances").getValues()
-    var ids = ArrayLib.transpose(ss.getRangeByName("tot_Bins").getValues())
+    var ids = ArrayLib.transpose(ss.getRangeByName("tot_IDs").getValues())
     var i = ArrayLib.indexOf(ids, 0, this.id)
     if (i) {
       this.col = i
@@ -50,7 +50,7 @@ function addMember(member) {
   var totals = ss.getSheetByName("Totals");
      
   // add to contacts
-  addMemberToContacts(member)
+  //addMemberToContacts(member) TRYING to get this to happen automagically on editing of Members sheet
   
   // add to Totals sheet
   var tcol = insertColumn(totals)
@@ -157,14 +157,21 @@ function getMembers(){// returns array of objects
   return members   // an array of objects
 }
 
+//function temp(){
+//  var t = getMember(61)
+//  log(t)
+//  log([t.getCurrentBalanceDate(), t.getCurrentBalance()])
+//}
 
-function getMember(id){
+
+
+function getMember(arg){// arg is Id or row number in Members Tab(as reported by onEdit)
   var sheet = SpreadsheetApp.getActive().getSheetByName("Members") 
   var data = sheet.getDataRange().getValues()
   var member = new Member();
- 
+  var id = isValidId(arg) && arg || isNumeric(arg) && arg <= data.length && data[arg-1][MEM_ID_OFFSET]
   var i = ArrayLib.indexOf(data, MEM_ID_OFFSET, id)   // look for id
-  if (!i)  {return }
+  if (i<0)  {return {}}
   
   if (isDRY){
     member.id = id
@@ -184,13 +191,12 @@ function getMember(id){
     member.homeAddress = data[i][6] + (data[i][7] ? (', ' + data[i][7]) : '')                                 
     member.row = i
   }
-  Logger.log(member.getCurrentBalanceDate())
-  Logger.log(member.getCurrentBalance())
+
   return member
 }
 
 
-function testm(){
+function testRemove(){
   removeMember("8175")
 }
 
