@@ -1,32 +1,36 @@
-function showAlert() {
-  var ui = SpreadsheetApp.getUi(); // Same variations.
-
-  var result = ui.alert(
-     'Please confirm',
-     'Are you sure you want to continue?',
-      ui.ButtonSet.YES_NO);
-
-  // Process the user's response.
-  if (result == ui.Button.YES) {
-    // User clicked "Yes".
-    ui.alert('Confirmation received.');
-  } else {
-    // User clicked "No" or X in the title bar.
-    ui.alert('Permission denied.');
-  }
-}
-
-function showDialog(data) {
-  var template = HtmlService.createTemplateFromFile('testDialog')
-      .data = data
-  template.setSandboxMode(HtmlService.SandboxMode.IFRAME)
-      .setWidth(400)
-      .setHeight(300)
-  var ui = template.setTitle("Contacts").evaluate()
-  
-  SpreadsheetApp.getUi() // Or DocumentApp or FormApp.
-      .showModalDialog(ui, 'Hmmm');
-}
+//function showAlert() {
+//  var ui = SpreadsheetApp.getUi(); // Same variations.
+//
+//  var result = ui.alert(
+//     'Please confirm',
+//     'Are you sure you want to continue?',
+//      ui.ButtonSet.YES_NO);
+//
+//  // Process the user's response.
+//  if (result == ui.Button.YES) {
+//    // User clicked "Yes".
+//    ui.alert('Confirmation received.');
+//  } else {
+//    // User clicked "No" or X in the title bar.
+//    ui.alert('Permission denied.');
+//  }
+//}
+//
+//function showDialog(data) {
+//  var template = HtmlService.createTemplateFromFile('testDialog')
+//      .data = data
+//  template.setSandboxMode(HtmlService.SandboxMode.IFRAME)
+//      .setWidth(400)
+//      .setHeight(300)
+//  var ui = template.setTitle("Contacts").evaluate()
+//  
+//  SpreadsheetApp.getUi() // Or DocumentApp or FormApp.
+//      .showModalDialog(ui, 'Hmmm');
+//}
+//
+//// Create a trigger for the script.
+//ScriptApp.newTrigger('myFunction').forSpreadsheet('id of my spreadsheet').onEdit().create();
+//Logger.log(ScriptApp.getProjectTriggers()[0].getHandlerFunction()); // logs "myFunction"
 
 //-------------------------
 //function getNames(){
