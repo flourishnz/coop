@@ -152,35 +152,10 @@ function sortSheets() {
 }
 
 
-
 function hideAdminSheets(){
-  var ss = SpreadsheetApp.getActiveSpreadsheet()
-  
-  ss.getSheetByName("Ex Members").hideSheet()
-  ss.getSheetByName("Transposed Totals").hideSheet()
-  ss.getSheetByName("Change Log").hideSheet()
-  ss.getSheetByName("Reminders").hideSheet()
-
-  if (isDry()) {
-    ss.getSheetByName("Products").hideSheet()
-  } 
-  else {
-    
-    ss.getSheetByName("DB").hideSheet()
-    ss.getSheetByName("Pivot Table 1").hideSheet()
-
-    ss.getSheetByName("Devt").hideSheet()
-    ss.getSheetByName("Experimental").hideSheet()
-    ss.getSheetByName("transposed orders").hideSheet()
-    ss.getSheetByName("T O").hideSheet()
-
-    ss.getSheetByName("Bananas").hideSheet()
-    ss.getSheetByName("Vendors").hideSheet()
-    ss.getSheetByName("Guidelines & Rules").hideSheet()
-    ss.getSheetByName("Sheet 39").hideSheet()
-    ss.getSheetByName("compare to invoice").hideSheet()
-    ss.getSheetByName("MP history").hideSheet()
-                    
+  var visibles = ['Notices', 'Orders','Pre-tweak Orders', 'Totals', 'Banking', 'Payers', 'Roster', 'Members', 'FAQ']
+  var sheets = SpreadsheetApp.getActiveSpreadsheet().getSheets()
+  for (var i =0; i<sheets.length; i++){
+    if (visibles.indexOf(sheets[i].getName()) == -1){sheets[i].hideSheet()}
   }
 }
-

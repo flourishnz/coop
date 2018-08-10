@@ -44,18 +44,15 @@ function rollover() {//Rollover order - preparing new sheet
     refreshFormulae(); 
     addMembers();
     
+    rolloverRosters();
+    
     notify("Spreadsheet is ready for updating.")
 
     // Remove users
-    
-    // Roster
     // Load notices   
-    
     // Load local
     // Load FreshDirect
     
-
-    // openOrdering
   }
 }  
 
@@ -331,4 +328,12 @@ function addTrigger() {
   
   trigger.getUniqueId()
 
+}
+
+function rolloverRosters(){
+  if (isFRESH){
+    var ss = SpreadsheetApp.getActiveSpreadsheet()
+    ss.setNamedRange('Roster_This_Pack', ss.getRangeByName('Roster_This_Pack').offset(0,1))
+    ss.setNamedRange('Roster_Next_Pack', ss.getRangeByName('Roster_Next_Pack').offset(0,1))
+    }
 }
