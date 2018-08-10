@@ -221,7 +221,7 @@ function deleteChangeLog(){// clear from second row to end, keep formatting
 
 function deleteRunLog(){
   try {
-    SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Run Log").clear()
+    SpreadsheetApp.getActiveSpreadsheet().getSheetByName("RunLog").clear()
   } 
   catch (error) {// if sheet ain't there we don't care }
   }
