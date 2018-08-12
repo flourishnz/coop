@@ -1,8 +1,9 @@
 // MEMBERS
-// v1.4
+// v1.5
 
+// 11-8-18 added code to remove member from spreadsheet - still needs some refinement
 // 15-3-18 fixed bug ss not defined in function Member and SYNCHED
-// 1-3-18 synched - remove member
+// 1-3-18 synched - remove member OR NOT
 // 8-12-17 synched Fresh and Dry b
 // 28-11-17 add multiple new members from Members sheet
 // 16-11-17 synched with dry a 
@@ -121,9 +122,7 @@ function insertColumn(sheet) {
 }
 
 
-//// MEMBERS
-//
-//
+
 function getMembers(){// returns array of objects
   var ss = SpreadsheetApp.getActiveSpreadsheet()
   var data = ss.getRangeByName("mem_Data").getValues()
@@ -157,12 +156,6 @@ function getMembers(){// returns array of objects
   return members   // an array of objects
 }
 
-//function temp(){
-//  var t = getMember(61)
-//  log(t)
-//  log([t.getCurrentBalanceDate(), t.getCurrentBalance()])
-//}
-
 
 
 function getMember(arg){// arg is Id or row number in Members Tab(as reported by onEdit)
@@ -195,8 +188,142 @@ function getMember(arg){// arg is Id or row number in Members Tab(as reported by
   return member
 }
 
+//------------------------------------------------------------------------
 
-function testRemove(){
-  removeMember("8175")
+
+function removeThisMember(){
+  // call from Totals sheet or from Members sheet to initiate removal of 'active' member
+  var range = SpreadsheetApp.getActiveRange();
+  var sheet = range.getSheet()
+  var sheetName = sheet.getName()
+  var thisCol = range.getColumn()
+  var thisRow = range.getRow()
+  var ui = SpreadsheetApp.getUi();
+
+  if (sheetName == 'Totals'){
+    if (thisCol <= 4){
+      ui.alert("Please move to a member column.")
+    } else {
+      var response = ui.alert("Remove " +  sheet.getRange(TOT_ID_ROW-1, thisCol).getValue() + " from the co-op?", ui.ButtonSet.YES_NO)
+      if (response == ui.Button.YES) {removeMember(sheet.getRange(TOT_ID_ROW, thisCol).getValue())}
+    }
+    return
+  }
+  
+  //else
+  if (sheetName == 'Members'){
+    if (thisRow == 1){
+      ui.alert("Please move to a member row.")
+      return
+    }
+    var response = ui.alert("Remove " +  sheet.getRange(thisRow, MEM_ID_OFFSET+1).getValue() + " " +
+                             sheet.getRange(thisRow, MEM_ID_OFFSET+2).getValue() +
+                            " from the co-op?", ui.ButtonSet.YES_NO)
+    if (response == ui.Button.YES) {removeMember(sheet.getRange(thisRow, MEM_ID_OFFSET+1).getValue())}
+  }
 }
 
+
+
+function removeMember(id) {
+  var member = getMember(id)
+  saveExMemberDetails_(member)
+  removeFromOrders_(member)
+  removeFromTotals_(member)
+  removeFromMembers_(member)
+  //  removeFromCurrentContacts(member) //must be actioned by coop account
+  // unshare?
+  // revoke access?
+  // send an email to Seraphim/Joanne/coop/kasey etc
+}
+
+
+
+function saveExMemberDetails_(member){// still needs refining...
+  var balance = member.getCurrentBalance()
+  var balDate = member.getCurrentBalanceDate()
+  var sheet = SpreadsheetApp.getActive().getSheetByName('Ex Members')
+  if (isDRY){
+    sheet.appendRow(['',member.name, member.id, balance, '', '', balDate,
+                                                                     '', '', '', '', '', '', 
+                                                                     member.id, member.name, member.email, member.mobile , member.homePhone])
+  } else {
+    SpreadsheetApp.getActive().getSheetByName('Ex Members').appendRow(['',member.name, member.id,  '', '', balDate, balance,
+                                                                     50, '', '', '', '', '', 
+                                                                     member.id, member.name, member.email, member.mobile , member.homePhone, member.address]) 
+    
+  }
+  var row = sheet.getLastRow()
+  sheet.getRange(row,  9).setFormulaR1C1('=sumifs(bank_Amount, bank_Bin, R[0]C[-6], bank_Date, ">" & R[0]C[-3], bank_Amount, ">0")')
+  sheet.getRange(row, 10).setFormulaR1C1('=sumifs(bank_Amount, bank_Bin, R[0]C[-7], bank_Date, ">" & R[0]C[-4], bank_Amount, "<0")')
+  sheet.getRange(row, 12).setFormulaR1C1('sum(R[0]C[-5]:R[0]C[-1])')
+
+}
+
+
+function removeFromMembers_(member){
+  var sheet = SpreadsheetApp.getActive().getSheetByName("Members")
+  var data = sheet.getDataRange().getValues() 
+  var i = ArrayLib.indexOf(data, MEM_ID_OFFSET, member.id)   // look for id
+  if (i == -1)  {
+    log(["Couldn't remove member from Members sheet", member.id])
+    return 
+  }
+  sheet.deleteRow(i+1)
+  log(['Removed member from Members tab', member.id, member.name])
+}
+
+
+function removeFromOrders_(member){  // remove from Totals and Orders sheets
+  var ss = SpreadsheetApp.getActive()
+  var ids = ss.getRangeByName('ord_Bins').getValues()[0]
+  var col = ids.indexOf(member.id)
+  if (col == -1) {
+    log('Failed to remove member - member not found on Orders sheet', member.id, member.name)
+    return
+  }
+  var col = ids.indexOf(member.id)
+  say(ids)
+  if (col > -1) {
+    ss.getSheetByName('Orders').deleteColumn(col+1)
+    log(['Removed member from Orders', member.id, member.name])
+  } else {
+    log(['Failed to locate ' + member.id + ' on Orders sheet.'])
+  }
+}
+
+  
+function removeFromTotals_(member){
+  var ss = SpreadsheetApp.getActive()
+  var ids = ss.getRangeByName('tot_Bins').getValues()[0]
+  var col = ids.indexOf(member.id)
+  say(ids)
+  if (col == -1) {
+    log(['Failed to properly remove member - member not found on Totals sheet', member.id, member.name])
+    return
+  }
+  var col = ids.indexOf(member.id)
+  ss.getSheetByName('Totals').deleteColumn(col+1)
+  log(['Removed member from Totals', member.id, member.name])
+}
+
+//---------------------------------------------------
+// this code needs to go to CoopLib when ready
+
+function removeFromCurrentContacts(member) {
+  //  Remove contact from current list - has to be run by coop account
+  if (isFRESH){
+    var coopGroup = ContactsApp.getContactGroup("Co-op members")  
+    var exGroup = ContactsApp.getContactGroup("Ex members")
+    var contacts = ContactsApp.getContactsByName(member.name)
+    if (contacts.length == 0) {
+      log(["Contact not found", member.name])
+    } else {
+      for (var i in contacts) {
+        exGroup.addContact(contacts[i])
+        coopGroup.removeContact(contacts[i])
+        log(["Moved contact from Co-op Members group to Ex Members group", contact[i].name])
+      }
+    }
+  }
+}
