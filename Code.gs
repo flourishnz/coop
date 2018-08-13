@@ -40,7 +40,7 @@ if (isFresh()) {
   TOT_ID_ROW = 3
   
   CLOSE_DAY = "Monday"
-  CLOSE_TIME = "09:00 am"
+  CLOSE_TIME = "10:00 pm"
   MIN_ORDER_FEE = 5
 }
 
