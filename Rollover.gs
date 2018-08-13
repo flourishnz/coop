@@ -1,7 +1,8 @@
 // ROLLOVER
-// v1.91
+// v1.92
 
-// rollover rosters
+// 14-08-18 Build trigger for reminders
+// July 18  rollover rosters
 // 4-Jun-18 added seraphim to notifications
 // 29-Nov-17 SYNCHED
 // 19-Sep-17 SYNCHED fresh - dry AB - 
@@ -48,7 +49,8 @@ function rollover() {//Rollover order - preparing new sheet
     rolloverRosters();
     
     notify("Spreadsheet is ready for updating.")
-
+    triggerReminders();
+    
     // Remove users
     // Load notices   
     // Load local
@@ -303,28 +305,12 @@ function getNextPackDateFromFilename(){
 }
 
 
-function testR(){
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-//  Logger.log(ss.getSpreadsheetTimeZone())
-//  Logger.log(Session.getScriptTimeZone())
-//  Logger.log(getNextPackDateFromFilename());
-  
-//  ss.setSpreadsheetTimeZone("Pacific/Auckland")
-//  Logger.log(ss.getSpreadsheetTimeZone())
-  //tellJulie()
-//  Logger.log( PropertiesService.getUserProperties().getKeys()[0]) // .getProperty('timezone'));
-    notify("Spreadsheet is ready for updating.")
-
-}
-
-
-
-function addTrigger() {
-  var trigger = ScriptApp.newTrigger("testR")
+function triggerReminders() {
+  var trigger = ScriptApp.newTrigger("sendReminderSMS")
   .timeBased()
   .inTimezone("Pacific/Auckland")
-  .onWeekDay("Monday")
-  .atHour(17)
+  .onWeekDay(ScriptApp.WeekDay.MONDAY)
+  .atHour(19)
   .create();
   
   trigger.getUniqueId()
