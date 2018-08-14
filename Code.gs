@@ -125,6 +125,7 @@ function onOpen() {
     
     .addSubMenu(SpreadsheetApp.getUi()
                 .createMenu('Structural')
+                .addItem('Remove this member', 'removeThisMember')
                 .addItem('Rollover', 'rollover')
                 .addItem('Refresh Formulae', 'refreshFormulae')
                 .addItem('Tidy Up', 'tidyUpSheets')
