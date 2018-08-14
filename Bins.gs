@@ -12,19 +12,7 @@ function testBL(){
   var doc = DocumentApp.openById(copyFile.getId())
   var body = doc.getBody()
   var header = doc.getHeader()
-  
-// debugging / exploring
-  var x = body.getChild(1)
-  say (x)
-  say(body.getChildIndex(x))
- // say(body.getChildIndex(body.getTables[1]))
-  
-  
-  
-  // get a copy of templated tables and remove them from the front of the document in the same command
-  //templateTable = body.getTables()[0].removeFromParent()
-  //var templateFoot = body.getTables()[0].removeFromParent()
-  
+    
   // Document Heading - set the packdate
   header.replaceText('%PACKDATE%', Utilities.formatDate(packDate, "GMT+12:00", "EEEE, d MMMM yyyy"))
 
@@ -35,17 +23,30 @@ function testBL(){
   p.setAttributes({"FONT_SIZE": 14, "FOREGROUND_COLOR": "#0000ff"})
   say(p.getAttributes())
   
+  //------------------------------------------
+  // Create PDF from doc, rename it if required and delete the doc
+    
+  doc.saveAndClose()
+  var pdf = DriveApp.getFolderById(FOLDER_ID).createFile(copyFile.getAs('application/pdf'))  
+
+  if (PDF_FILE_NAME !== '') {
+    pdf.setName(PDF_FILE_NAME)
+  } 
+  
+  copyFile.setTrashed(true)
+    
 }
 
 
 
 function fillBinList(table) {
   var templateRow = table.getRow(0).removeFromParent()
+  //initialise
   var prevId = 1000
   var member = {}
   
    // Get orders
-  var data = getMembersWhoOrdered()  
+  var data = getFreshMembersWhoOrdered().sort()  // returns [[]]
  
   // create a row for each member
   for (var i=0; i < data.length; i++) {
@@ -65,4 +66,16 @@ function fillBinList(table) {
   
 }
 
-
+function getFreshMembersWhoOrdered(){// returns array of objects
+  var ss = SpreadsheetApp.getActiveSpreadsheet()
+  var headers = isDRY && ss.getRangeByName('ord_Headers').getValues() || ss.getRangeByName('tot_Headers').getValues()
+  var members = []
+  
+  for (var i = 0; i< headers[0].length; i++) {
+    if (headers[2][i] === "ordered") {
+      members.push({name: headers[0][i], id: headers[1][i]})
+    }
+  }
+  
+  return members
+}

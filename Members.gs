@@ -250,7 +250,7 @@ function saveExMemberDetails_(member){// still needs refining...
   } else {
     SpreadsheetApp.getActive().getSheetByName('Ex Members').appendRow(['',member.name, member.id,  '', '', balDate, balance,
                                                                      50, '', '', '', '', '', 
-                                                                     member.id, member.name, member.email, member.mobile , member.homePhone, member.address]) 
+                                                                     member.id, member.name, member.email, member.mobile , member.homePhone, member.homeAddress]) 
     
   }
   var row = sheet.getLastRow()
