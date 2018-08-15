@@ -12,11 +12,6 @@
 //changes...
 //   
 
-//  var IDs = ss.getRangeByName("tot_Bins").getValues()[0]
-//  var names = ss.getRangeByName("tot_Members").getValues()[0]
-//  var prevOrders = ss.getRangeByName("tot_Previous_Orders").getValues()[0]
-//  var currOrders = ss.getRangeByName("tot_Current_Orders").getValues()[0]
-
 
 function Member() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();   
@@ -164,7 +159,10 @@ function getMember(arg){// arg is Id or row number in Members Tab(as reported by
   var member = new Member();
   var id = isValidId(arg) && arg || isNumeric(arg) && arg <= data.length && data[arg-1][MEM_ID_OFFSET]
   var i = ArrayLib.indexOf(data, MEM_ID_OFFSET, id)   // look for id
-  if (i<0)  {return {}}
+  if (i<0)  {
+    log(['Member not found in Members tab', id])
+    SpreadsheetApp.getUi().alert('Member not found in Members tab: ' + id);
+    return {}}
   
   if (isDRY){
     member.id = id
@@ -208,55 +206,68 @@ function removeThisMember(){
       if (response == ui.Button.YES) {removeMember(sheet.getRange(TOT_ID_ROW, thisCol).getValue())}
     }
     return
-  }
-  
-  //else
-  if (sheetName == 'Members'){
+  } 
+  else if (sheetName == 'Members'){
     if (thisRow == 1){
       ui.alert("Please move to a member row.")
       return
     }
     var response = ui.alert("Remove " +  sheet.getRange(thisRow, MEM_ID_OFFSET+1).getValue() + " " +
-                             sheet.getRange(thisRow, MEM_ID_OFFSET+2).getValue() +
-                            " from the co-op?", ui.ButtonSet.YES_NO)
-    if (response == ui.Button.YES) {removeMember(sheet.getRange(thisRow, MEM_ID_OFFSET+1).getValue())}
-  }
+      sheet.getRange(thisRow, MEM_ID_OFFSET+2).getValue() +
+        " from the co-op?", ui.ButtonSet.YES_NO)
+        if (response == ui.Button.YES) {removeMember(sheet.getRange(thisRow, MEM_ID_OFFSET+1).getValue())}
+  } 
+  else {ui.alert("Select a cell in the member's row in Members or in the member's column in Totals and try again.")}
 }
 
 
 
 function removeMember(id) {
   var member = getMember(id)
-  saveExMemberDetails_(member)
-  removeFromOrders_(member)
-  removeFromTotals_(member)
-  removeFromMembers_(member)
-  //  removeFromCurrentContacts(member) //must be actioned by coop account
-  // unshare?
-  // revoke access?
-  // send an email to Seraphim/Joanne/coop/kasey etc
+  if (!_.isEmpty(member)) {
+    saveExMemberDetails_(member)
+    removeFromOrders_(member)
+    removeFromTotals_(member)
+    removeFromMembers_(member)
+    //  removeFromCurrentContacts(member) //must be actioned by coop account
+    // revoke access?
+    // send an email to Seraphim/Joanne/coop/kasey etc
+  }
 }
 
 
-
 function saveExMemberDetails_(member){// still needs refining...
-  var balance = member.getCurrentBalance()
-  var balDate = member.getCurrentBalanceDate()
   var sheet = SpreadsheetApp.getActive().getSheetByName('Ex Members')
+  var newRow = sheet.getLastRow() -1
+  sheet.insertRowAfter(newRow-1)    // inserted row is now newRow
+
   if (isDRY){
-    sheet.appendRow(['',member.name, member.id, balance, '', '', balDate,
-                                                                     '', '', '', '', '', '', 
-                                                                     member.id, member.name, member.email, member.mobile , member.homePhone])
-  } else {
-    SpreadsheetApp.getActive().getSheetByName('Ex Members').appendRow(['',member.name, member.id,  '', '', balDate, balance,
-                                                                     50, '', '', '', '', '', 
-                                                                     member.id, member.name, member.email, member.mobile , member.homePhone, member.homeAddress]) 
+    var data = [[member.name, member.id, member.getCurrentBalanceDate(), member.getCurrentBalance(),
+                      '', '', '', '', '', '', '',
+                      member.id, member.name, member.email, member.mobile , member.homePhone]]
     
+    sheet.getRange(newRow, 2, 1, data[0].length)
+         .setValues(data)
+    
+    // add formulae
+    sheet.getRange(newRow,  7).setFormula('=sumifs(bank_Amount, bank_Bin, ex_ID, bank_Date, ">" & ex_Date, bank_Amount, ">0")')     //deposits
+    sheet.getRange(newRow, 8).setFormula('=sumifs(bank_Amount, bank_Bin, ex_ID, bank_Date, ">" & ex_Date, bank_Amount, "<0")')      //refunds
+    sheet.getRange(newRow, 10).setFormulaR1C1('sum(R[0]C[-5]:R[0]C[-1])')                                                           //net balance
+
+  } else {//FRESH
+    var data = [[member.name, member.id,  '', '', member.getCurrentBalanceDate(), member.getCurrentBalance(),
+                     50, '', '', '', '', '', 
+                     member.id, member.name, member.email, member.mobile , member.homePhone, member.homeAddress]]
+    
+    sheet.getRange(newRow, 2, 1, data[0].length)
+         .setValues(data)
+    
+    // add formulae
+    sheet.getRange(newRow,  9).setFormulaR1C1('=sumifs(bank_Amount, bank_Bin, ex_ID, bank_Date, ">" & ex_Date, bank_Amount, ">0")')  //deposits
+    sheet.getRange(newRow, 10).setFormulaR1C1('=sumifs(bank_Amount, bank_Bin, ex_ID, bank_Date, ">" & ex_Date, bank_Amount, "<0")')  //refunds
+    sheet.getRange(newRow, 12).setFormulaR1C1('sum(R[0]C[-5]:R[0]C[-1])')                                                            //net balance
   }
-  var row = sheet.getLastRow()
-  sheet.getRange(row,  9).setFormulaR1C1('=sumifs(bank_Amount, bank_Bin, R[0]C[-6], bank_Date, ">" & R[0]C[-3], bank_Amount, ">0")')
-  sheet.getRange(row, 10).setFormulaR1C1('=sumifs(bank_Amount, bank_Bin, R[0]C[-7], bank_Date, ">" & R[0]C[-4], bank_Amount, "<0")')
-  sheet.getRange(row, 12).setFormulaR1C1('sum(R[0]C[-5]:R[0]C[-1])')
+
 
 }
 
@@ -279,10 +290,9 @@ function removeFromOrders_(member){  // remove from Totals and Orders sheets
   var ids = ss.getRangeByName('ord_Bins').getValues()[0]
   var col = ids.indexOf(member.id)
   if (col == -1) {
-    log('Failed to remove member - member not found on Orders sheet', member.id, member.name)
+    log(['Failed to remove member - member not found on Orders sheet', member.id, member.name])
     return
   }
-  var col = ids.indexOf(member.id)
   say(ids)
   if (col > -1) {
     ss.getSheetByName('Orders').deleteColumn(col+1)
@@ -302,7 +312,6 @@ function removeFromTotals_(member){
     log(['Failed to properly remove member - member not found on Totals sheet', member.id, member.name])
     return
   }
-  var col = ids.indexOf(member.id)
   ss.getSheetByName('Totals').deleteColumn(col+1)
   log(['Removed member from Totals', member.id, member.name])
 }

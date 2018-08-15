@@ -136,7 +136,7 @@ function refreshTotals() {
   matchNumLines();
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var rangeF = ss.getRangeByName("tot_Formulae");
-  rangeF.setFormula("=tot_Prices * hlookup(tot_Bins, ord_Orders, row()-3, false)")
+  rangeF.setFormula("=tot_Prices * hlookup(tot_IDs, ord_Orders, row()-3, false)")
 }
 
 function refreshOrders() {
