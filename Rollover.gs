@@ -306,13 +306,21 @@ function getNextPackDateFromFilename(){
 
 
 function triggerReminders() {
-  var trigger = ScriptApp.newTrigger("sendReminderSMS")
-  .timeBased()
-  .inTimezone("Pacific/Auckland")
-  .onWeekDay(ScriptApp.WeekDay.MONDAY)
-  .atHour(19)
-  .create();
-  
+  if (isFRESH) {
+    var trigger = ScriptApp.newTrigger("sendReminderSMS")
+    .timeBased()
+    .inTimezone("Pacific/Auckland")
+    .onWeekDay(ScriptApp.WeekDay.MONDAY)
+    .atHour(18)
+    .create();
+  } else {
+    var trigger = ScriptApp.newTrigger("sendReminderSMS")
+    .timeBased()
+    .inTimezone("Pacific/Auckland")
+    .onWeekDay(ScriptApp.WeekDay.SUNDAY)
+    .atHour(16)
+    .create();    
+  }
   trigger.getUniqueId()
 
 }
