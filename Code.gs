@@ -1,6 +1,7 @@
 // CODE.GS
-// v1.02
+// v1.03
 
+// 26 Aug 18 Added stocktake to Dry menu
 // 15-Jun-18 added functions say() and rounded(); relocated getLatestSS, getLatestSsId etc - not in use??
 //  1-Mar-18 add MIN_ORDER_FEE constant
 // 11-Feb-18 Synched All - adding reports to Dry Menu - Adding constants
@@ -121,6 +122,7 @@ function onOpen() {
                 .createMenu('Reports')
                 .addItem('Member orders', 'createReportDryPickupLists')
                 .addItem('Pickup checklist', 'createReportPickupChecklist')
+                .addItem('Stocktake list', 'createReportStocktake')
                )
     
     .addSubMenu(SpreadsheetApp.getUi()
