@@ -256,7 +256,7 @@ function saveExMemberDetails_(member){// still needs refining...
 
   } else {//FRESH
     var data = [[member.name, member.id,  '', '', member.getCurrentBalanceDate(), member.getCurrentBalance(),
-                     50, '', '', '', '', '', 
+                     50, '', '', '', '', '', '', 
                      member.id, member.name, member.email, member.mobile , member.homePhone, member.homeAddress]]
     
     sheet.getRange(newRow, 2, 1, data[0].length)
