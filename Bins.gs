@@ -1,4 +1,4 @@
-function testBL(){
+function createReportBinList(){
   var TEMPLATE_ID = '1suKh6TfvHPsD57FNcvq6gkVXS1Sq7-zzQF8yZm1mvaU'  // bin list template
   var FOLDER_ID = '1KPMf3cnXFJJ7L50zOucPYqaWNoHx2wIp'               // reports go to fresh/reports
   

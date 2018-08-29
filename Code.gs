@@ -87,7 +87,7 @@ function onOpen() {
       .addSubMenu(SpreadsheetApp.getUi()
                   .createMenu('Reports')
                     .addItem('Pack lists', 'createReportFreshPacklist')
-                    .addItem('Bin list', 'createReportBinlist')
+                    .addItem('Bin list', 'createReportBinList')
                )
         
       .addSubMenu(SpreadsheetApp.getUi()
