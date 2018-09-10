@@ -332,8 +332,7 @@ function rolloverRosters(){
     ss.setNamedRange('Roster_Next_Pack', ss.getRangeByName('Roster_Next_Pack').offset(0,1))
   } else {
     var range = ss.getRangeByName('ros_This_Pack')
-    ss.getSheetByName('Roster')
-      .hideRows(range.getRow()-1, range.getNumRows()+2)
-    ss.setNamedRange('ros_This_Pack', ss.getRangeByName('ros_This_Pack').offset(24,0))
+    ss.getSheetByName('Roster').hideRows(range.getRow()-1, range.getNumRows()+2)
+    ss.setNamedRange('ros_This_Pack', range.offset(range.getNumRows()+2, 0))
   }
 }
