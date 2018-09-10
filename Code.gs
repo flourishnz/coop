@@ -42,7 +42,7 @@ if (isFresh()) {
   
   CLOSE_DAY = "Monday"
   CLOSE_TIME = "10:00 pm"
-  MIN_ORDER_FEE = 5
+  MIN_ORDER_FEE = 3
 }
 
 if (isDry()) {
