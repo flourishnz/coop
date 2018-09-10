@@ -326,9 +326,14 @@ function triggerReminders() {
 }
 
 function rolloverRosters(){
+  var ss = SpreadsheetApp.getActiveSpreadsheet()
   if (isFRESH){
-    var ss = SpreadsheetApp.getActiveSpreadsheet()
     ss.setNamedRange('Roster_This_Pack', ss.getRangeByName('Roster_This_Pack').offset(0,1))
     ss.setNamedRange('Roster_Next_Pack', ss.getRangeByName('Roster_Next_Pack').offset(0,1))
-    }
+  } else {
+    var range = ss.getRangeByName('ros_This_Pack')
+    ss.getSheetByName('Roster')
+      .hideRows(range.getRow()-1, range.getNumRows()+2)
+    ss.setNamedRange('ros_This_Pack', ss.getRangeByName('ros_This_Pack').offset(24,0))
+  }
 }
