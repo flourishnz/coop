@@ -1,4 +1,5 @@
 // ROLLOVER
+// v1.94 if not ok to rollover, Activate sheet that requires fix, Log calls
 // v1.93 Correcting daylight saving error, moving validity tests to the front and improving notification
 
 // 14-08-18 Build trigger for reminders
@@ -37,6 +38,7 @@ function rollover() {//Rollover order - preparing new sheet
     rolloverTotals(); 
     rolloverDates();
 
+    log('Deletions...')
     deleteOrders();
     if (isFRESH){ clearFreshDirect()  };
     deletePreTweakSheet();
@@ -55,12 +57,14 @@ function rollover() {//Rollover order - preparing new sheet
     // Load notices   
     // Load local
     // Load FreshDirect
-    
+    log('Rollover completed successfully')
   }
 }  
 
 
 function rolloverDates(){
+  log('rolloverDates...')
+
   var ss = SpreadsheetApp.getActiveSpreadsheet()
   var rangeNextBD = ss.getRangeByName('tot_Next_Balance_Date')
   var nextBD = new Date(rangeNextBD.getValue())
@@ -202,6 +206,8 @@ function refreshProducts() {
 
 
 function rolloverTotals() { // Copy curr order details to prev order, starting with orders
+    log('rolloverTotals...')
+
   copyNamedRange("tot_Current_Balances", "tot_Previous_Balances");
   copyNamedRange("tot_Current_Orders", "tot_Previous_Orders");
   copyNamedRange("tot_Current_Credits", "tot_Previous_Credits");
@@ -285,8 +291,10 @@ function okToRollover(){
   }
 
   // Has banking workbook been connected to this workbook? (otherwise value in a1 shows #REF! and the banking transactions are unavailable)
-  var bankingOK = (ss.getSheetByName("Banking").getRange("A1").getValue() != "#REF!")
+  var bankingSheet = ss.getSheetByName("Banking")
+  var bankingOK = (bankingSheet.getRange("A1").getValue() != "#REF!")
   if (!bankingOK) {
+    bankingSheet.activate()
     ui.alert("Oops, can't run the rollover until the banking link has been reconnected.")
     return false
   }
@@ -297,7 +305,8 @@ function okToRollover(){
   var closeDate = new Date(ss.getRangeByName('tot_Next_Balance_Date').getValue())
   if (closeDate < Date.now()-5*days){
     var ui = SpreadsheetApp.getUi();
-    ui.alert("Oops, there is a greater than normal interval between packs. Go back and adjust the closing banking date on the previous spreadsheet and on this one.")
+    ss.getRangeByName('tot_Next_Balance_Date').activateAsCurrentCell()
+    ui.alert("Oops, closing banking date should be in the last 7 days. Change date here AND on the previous spreadsheet.")
     return false
   }
   
@@ -331,6 +340,8 @@ function getNextPackDateFromFilename(){
 
 
 function triggerReminders() {
+  log('triggerReminders...')
+
   if (isFRESH) {
     var trigger = ScriptApp.newTrigger("sendReminderSMS")
     .timeBased()
@@ -351,6 +362,8 @@ function triggerReminders() {
 }
 
 function rolloverRosters(){
+  log('rolloverRosters...')
+
   var ss = SpreadsheetApp.getActiveSpreadsheet()
   if (isFRESH){
     ss.setNamedRange('Roster_This_Pack', ss.getRangeByName('Roster_This_Pack').offset(0,1))

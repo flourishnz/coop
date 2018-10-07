@@ -1,5 +1,5 @@
 // MEMBERS
-// v1.5
+// v1.5.1 Logging call to addMembers
 
 // 11-8-18 added code to remove member from spreadsheet - still needs some refinement
 // 15-3-18 fixed bug ss not defined in function Member and SYNCHED
@@ -33,7 +33,9 @@ function Member() {
   
 }
 
-function addMembers() { 
+function addMembers() {
+  log('addMembers...')
+
   var newIDs = getNewMemberIDs()
  
   for (var i = 0; i < newIDs.length; i++) {
