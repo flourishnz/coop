@@ -1,5 +1,5 @@
 // ROLLOVER
-// v1.92
+// v1.93 Correcting daylight saving error, moving validity tests to the front and improving notification
 
 // 14-08-18 Build trigger for reminders
 // July 18  rollover rosters
@@ -64,22 +64,27 @@ function rolloverDates(){
   var ss = SpreadsheetApp.getActiveSpreadsheet()
   var rangeNextBD = ss.getRangeByName('tot_Next_Balance_Date')
   var nextBD = new Date(rangeNextBD.getValue())
-
-  // this test MAY NOT WORK but not urgent to fix - needed when pack timing changes   - also improve handling
-  if (nextBD < Date()-7){
-    // Alert Uh-oh This needs to be adjusted on the original ss before creating new sheet - there is a greater than normal interval between packs
-    return false
-  }
   
   copyNamedRange('tot_Current_Balance_Date', 'tot_Previous_Balance_Date')            // copy Current to Previous
   copyNamedRange('tot_Next_Balance_Date', 'tot_Current_Balance_Date')                // copy Next to Current
   
   if (isDRY) {                                                                     
-    rangeNextBD.setValue(new Date(nextBD.getTime()+28*(24*3600*1000)))               // add 28 days to Next
-  } else {
-    rangeNextBD.setValue(new Date(nextBD.getTime()+14*(24*3600*1000)))               // or add 14 days to Next
+    rangeNextBD.setValue(addDays(28, nextBD))                 // add 28 days to Next
+  } else {//isFresh
+    rangeNextBD.setValue(addDays(14, nextBD))               // or add 14 days to Next
   } 
 }
+
+function addDays(numDays, initialDate){
+  var minutes = 1000 * 60; // ms/sec * sec/min
+  var hours = minutes * 60;
+  var days = hours * 24;
+  
+  var newDateTime = new Date(initialDate.getTime() + numDays*days + 1*hours) // 28 days later between 00:00 - 02:00 depending on daylight saving transitions
+  var newDate = new Date(newDateTime.getYear(), newDateTime.getMonth(), newDateTime.getDate())  // drop time component
+  return newDate
+}
+
 
 
 function deleteOrders(){
@@ -265,18 +270,38 @@ function clearRolledOver(){
 }
 
 function okToRollover(){
-  // return false if already rolled over
+  var ss = SpreadsheetApp.getActiveSpreadsheet()
+  var days = 1000 * 60 * 60 * 24  //  num of ms/day
+
+  
+  // Have we rolled over already?
   var props = PropertiesService.getDocumentProperties()
   var rolledOver = props.getProperty("RolledOver")
-  if (rolledOver === "true") return false
+  var ui = SpreadsheetApp.getUi();
 
-  // if not rolled, return false if banking workbook has not been connected to this workbook (value in a1 is  #REF!)
-  // (and therefore the totals are not showing correctly)
-  var bankingOK = (SpreadsheetApp.getActiveSpreadsheet()
-                   .getSheetByName("Banking").getRange("A1")
-                   .getValue() != "#REF!")
+  if (rolledOver === "true") {
+    ui.alert("Oops, you probably didn't mean to do that - it seems rollover has already been run and running it again might really screw things up.")
+    return false
+  }
+
+  // Has banking workbook been connected to this workbook? (otherwise value in a1 shows #REF! and the banking transactions are unavailable)
+  var bankingOK = (ss.getSheetByName("Banking").getRange("A1").getValue() != "#REF!")
+  if (!bankingOK) {
+    ui.alert("Oops, can't run the rollover until the banking link has been reconnected.")
+    return false
+  }
+ 
+  // Is the banking rollover date correct? This has to be manually adjusted over summer - IN BOTH the old sheet and the new sheet
+  // Closing date for banking for the last ss of the year must run all the way up to the release of the next sheet in Jan/Feb
   
-  return (bankingOK)
+  var closeDate = new Date(ss.getRangeByName('tot_Next_Balance_Date').getValue())
+  if (closeDate < Date.now()-5*days){
+    var ui = SpreadsheetApp.getUi();
+    ui.alert("Oops, there is a greater than normal interval between packs. Go back and adjust the closing banking date on the previous spreadsheet and on this one.")
+    return false
+  }
+  
+  return true
 }
 
 function reportRolloverStatus(){
