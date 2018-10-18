@@ -439,4 +439,5 @@ function isNumeric(n) {
 function reducePenalty(){//correct price from 20% penalty loading to 10% loading
   var cell = SpreadsheetApp.getCurrentCell()
   cell.setValue(cell.getValue() / 1.2 * 1.1)
+  cell.offset(1, 0).activateAsCurrentCell()
 }
