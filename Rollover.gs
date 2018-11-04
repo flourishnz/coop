@@ -1,5 +1,5 @@
 // ROLLOVER
-// v1.95 Change rollover notification recipient - replace Seraphim with Susannah
+// v1.95 Change rollover notification recipient - replace Seraphim with Susannah, James. Add Kasey
 // v1.94 if not ok to rollover, Activate sheet that requires fix, Log calls
 // v1.93 Correcting daylight saving error, moving validity tests to the front and improving notification
 
@@ -245,7 +245,8 @@ function notifyNow() {
 
 function notify(msg){
   var ss = SpreadsheetApp.getActiveSpreadsheet()
-  var recipients = ((isFRESH && "michele@rimuchiro.co.nz ,  matt.mcrae86@gmail.com, susannaresink_6@hotmail.com") ||
+  var recipients = ((isFRESH && "michele@rimuchiro.co.nz ,  matt.mcrae86@gmail.com, susannaresink_6@hotmail.com"
+                    + ", kaseyb@gmail.com, james.d.dilks@gmail.com") ||
                     ("affordableorganics07@gmail.com"))
   var url = ss.getUrl()
   var ssName = ss.getName()
