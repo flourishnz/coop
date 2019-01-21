@@ -160,12 +160,14 @@ function refreshOrders() {
     copyDown(ss.getRangeByName("ord_TotalOrdered"))  
   }
   
-  range = ss.getRangeByName("ord_Unit")
-  units = range.getValues()
-  for (i=0; i<units[0].length; i++) {
-    if ((units[0][i] ==="each") ||
-        (units[0][i] ==="EACH"))
-    units[0][i] = "ea"
+  // make units consistent
+  var range = ss.getRangeByName("ord_Unit")
+  var units = range.getValues()
+  var unit
+  for (var i=0; i<units.length; i++) {
+    unit = units[i][0].toLowerCase()
+    if (unit === "each") {unit = "ea"}
+    units[i][0] = unit
   }
   range.setValues(units)
 }
@@ -205,15 +207,18 @@ function refreshProducts() {
   copyDown(ss.getRangeByName("tot_Prices"))
 }
 
-
 function rolloverTotals() { // Copy curr order details to prev order, starting with orders
-    log('rolloverTotals...')
-
+  log('rolloverTotals...')
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
   copyNamedRange("tot_Current_Balances", "tot_Previous_Balances");
   copyNamedRange("tot_Current_Orders", "tot_Previous_Orders");
   copyNamedRange("tot_Current_Credits", "tot_Previous_Credits");
+  
   SpreadsheetApp.getActiveSpreadsheet().getRangeByName("tot_Current_Credits").clearNote().clearContent();
+  ss.getRangeByName("tot_TiffCredits").setValue("=pho_PhoebeTiffShare");
+  ss.getRangeByName("tot_PhoebeCredits").setValue("=pho_PhoebeTiffShare");
 }
+
 
 
 //Copy source values and notes to destination using named ranges
