@@ -160,16 +160,18 @@ function refreshOrders() {
     copyDown(ss.getRangeByName("ord_TotalOrdered"))  
   }
   
-  // make units consistent
-  var range = ss.getRangeByName("ord_Unit")
-  var units = range.getValues()
-  var unit
-  for (var i=0; i<units.length; i++) {
-    unit = units[i][0].toLowerCase()
-    if (unit === "each") {unit = "ea"}
-    units[i][0] = unit
+  // make units consistent  // buggy in dry - selecting the wrong column - no time to fix
+  if (isFresh) {
+    var range = ss.getRangeByName("ord_Unit")
+    var units = range.getValues()
+    var unit
+    for (var i=0; i<units.length; i++) {
+      unit = units[i][0].toString().toLowerCase()
+      if (unit === "each") {unit = "ea"}
+      units[i][0] = unit
+    }
+    range.setValues(units)
   }
-  range.setValues(units)
 }
 
 
@@ -215,8 +217,10 @@ function rolloverTotals() { // Copy curr order details to prev order, starting w
   copyNamedRange("tot_Current_Credits", "tot_Previous_Credits");
   
   SpreadsheetApp.getActiveSpreadsheet().getRangeByName("tot_Current_Credits").clearNote().clearContent();
-  ss.getRangeByName("tot_TiffCredits").setValue("=pho_PhoebeTiffShare");
-  ss.getRangeByName("tot_PhoebeCredits").setValue("=pho_PhoebeTiffShare");
+  if (isFresh) {
+    ss.getRangeByName("tot_TiffCredits").setValue("=pho_PhoebeTiffShare");
+    ss.getRangeByName("tot_PhoebeCredits").setValue("=pho_PhoebeTiffShare");
+  }
 }
 
 
@@ -250,7 +254,7 @@ function notifyNow() {
 
 function notify(msg){
   var ss = SpreadsheetApp.getActiveSpreadsheet()
-  var recipients = ((isFRESH && "michele@rimuchiro.co.nz ,  matt.mcrae86@gmail.com, susannaresink_6@hotmail.com"
+  var recipients = ((isFRESH && "mattrobin24@gmail.com,  matt.mcrae86@gmail.com, susannaresink_6@hotmail.com"
                     + ", kaseyb@gmail.com, james.d.dilks@gmail.com") ||
                     ("affordableorganics07@gmail.com"))
   var url = ss.getUrl()
@@ -259,7 +263,7 @@ function notify(msg){
                  subject: "New sheet - " + ssName,
                  htmlBody: msg + "<br><br><a href='" + url + "'>" + ssName + "</a>"
                 }
-  MailApp.sendEmail(message)
+  //MailApp.sendEmail(message)
 }
 
 function tellJulie(msg, optUrl){
@@ -273,6 +277,7 @@ function tellJulie(msg, optUrl){
                 }
   MailApp.sendEmail(message)  
 }
+
 //---------------------------------------------------------------------------
 function setRolledOver(){
   PropertiesService.getDocumentProperties().setProperty("RolledOver", "true")
