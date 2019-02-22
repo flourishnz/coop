@@ -22,10 +22,7 @@ function createReportDryPickupLists() {
   var doc = DocumentApp.openById(copyFile.getId())
   var body = doc.getBody()
   var header = doc.getHeader()
-  
-  // Get orders
-  //var memberOrders = getOrders()  
-  
+    
   // get a copy of templated tables and clear the document
   var templateMemberTable = body.getTables()[0]
   var templateOrdersTable = body.getTables()[1]
@@ -37,6 +34,7 @@ function createReportDryPickupLists() {
   // Document Heading - set the packdate
   header.replaceText('%PACKDATE%', Utilities.formatDate(packDate, "GMT+12:00", "EEEE, d MMMM yyyy"))
 
+  // Get orders
   var memberOrders = getDryOrdersByMember().reverse()
 
   
@@ -140,13 +138,6 @@ function getDryOrdersByMember(){// actually works with Fresh except haven't hand
   return _.sortBy( members, ['name'])
 }
 
-function sharePdfPacksheets(pdf){
-
-  var recipients = ((isFresh() && "kapitifresh.co.op@gmail.com") ||
-                    ("affordableorganics07@gmail.com"))
-  pdf.addViewers([recipients])  
-
-}
 
 
 //========================================

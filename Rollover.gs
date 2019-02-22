@@ -263,7 +263,7 @@ function notify(msg){
                  subject: "New sheet - " + ssName,
                  htmlBody: msg + "<br><br><a href='" + url + "'>" + ssName + "</a>"
                 }
-  //MailApp.sendEmail(message)
+  MailApp.sendEmail(message)
 }
 
 function tellJulie(msg, optUrl){
