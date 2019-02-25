@@ -1,4 +1,5 @@
 // CODE.GS
+// v1.04 Moved sharePdfPacksheets here for now because it is called by several reports
 // v1.03
 
 // 26 Aug 18 Added stocktake to Dry menu
@@ -440,4 +441,10 @@ function reducePenalty(){//correct price from 20% penalty loading to 10% loading
   var cell = SpreadsheetApp.getCurrentCell()
   cell.setValue(cell.getValue() / 1.2 * 1.1)
   cell.offset(1, 0).activateAsCurrentCell()
+}
+
+function sharePdfPacksheets(pdf){
+  var recipients = ((isFresh() && "kapitifresh.co.op@gmail.com") ||
+                    ("affordableorganics07@gmail.com"))
+  pdf.addViewers([recipients])  
 }

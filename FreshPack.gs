@@ -1,8 +1,7 @@
 // FRESH - Pack Lists 
 // June 2018 - Use document templates because Apps Script can't create a document with columns yet
 
-// Still to do...
-
+// v 1.1 Moved sharePdfPacksheets to Code
 
 function createReportFreshPacklist() {
   
@@ -97,20 +96,6 @@ function createReportFreshPacklist() {
   copyFile.setTrashed(true)
 
 }
-
-function sharePdfPacksheets(pdf){
-
-  var recipients = ((isFresh() && "kapitifresh.co.op@gmail.com") ||
-                    ("affordableorganics07@gmail.com"))
-  pdf.addViewers([recipients])  
-//  var message = {      to: "flourish.nz@gmail.com"  ,// + "," + recipients,
-//                  subject: pdf.getName(),
-//                 htmlBody: "Latest pack sheets" + "<br><br><a href='" + pdf.getUrl() + "'></a>"
-//                }
-//  
-// MailApp.sendEmail(message)
-}
-
 
 function fillTable(table, product) {
   var prevQty = 0 

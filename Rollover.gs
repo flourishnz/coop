@@ -1,4 +1,5 @@
 // ROLLOVER
+// v1.96 Remove a couple of comments
 // v1.95 Change rollover notification recipient - replace Seraphim with Susannah, James. Add Kasey
 // v1.94 if not ok to rollover, Activate sheet that requires fix, Log calls
 // v1.93 Correcting daylight saving error, moving validity tests to the front and improving notification
@@ -30,8 +31,6 @@ function createOrderSheet(){// developing... this code may not run from within a
 
 function rollover() {//Rollover order - preparing new sheet
   if (okToRollover()){
-    //var ss = SpreadsheetApp.getActiveSpreadsheet();
-    // or, better still, copy sheet
     deleteRunLog();
     
     setStatus("Not ready");
