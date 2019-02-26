@@ -1,4 +1,5 @@
 // REMINDERS
+// v0.8 Make it work for Dry
 // v0.7f
 
 // merged/synched 4-Mar-18
@@ -8,20 +9,21 @@
 //
 // editing needed here to generalise call - say sendText(msg, members)
 
+function testMe(){
+  say (getMobile('8071'))
+}
+
 function sendReminderSMS(){
   var members = haventOrdered()
   
 //  var days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 //  var day = days[ Now.getDay() ];
-
-//  var message = "A reminder to Fresh co-op members who have not yet ordered:\n" +
-//         "FRESH co-op orders will be capped at 10:00 this morning. \n" +
-//         "You may order up to a complete bin until 8:00 this evening.\n" +
-//                  "https://docs.google.com/spreadsheets/d/1TIvspN97J305bRWz6Ob9aHozu1eQ_Pp3HOf-O6byp1k/edit#gid=18 "
-//var message = "FRESH Co-op orders are open unil 10am MONDAY"
+  if (isFRESH) {   
+    var message = "A reminder to Fresh co-op members who have not yet ordered:\n  FRESH Orders will close " + CLOSE_DAY +" at " + CLOSE_TIME + ".  "          //\n Please take a moment to order - the co-op works best when most members order. "  
+  } else {
+    var message = "A reminder to DRY co-op members who have not yet ordered:\n Dry orders will close today at " + CLOSE_TIME + ".  "
+  }
   
-  var message = "A reminder to Fresh co-op members who have not yet ordered:\n  FRESH Orders will close " + CLOSE_DAY +" at " + CLOSE_TIME + ".  "          //\n Please take a moment to order - the co-op works best when most members order. "  
-
   var mobile
   var re = /\(*02\d/;
 
@@ -50,8 +52,8 @@ function getMobile(id){
   var sheet = SpreadsheetApp.getActive().getSheetByName("Members") 
   var data = sheet.getDataRange().getValues()
   //var name = sheet.getName()
-  var index = ArrayLib.indexOf(data, 1, id)
-  return index && data[index][5] || ""
+  var index = ArrayLib.indexOf(data, MEM_ID_OFFSET, id)
+  return (index >= 0) && data[index][5] || ""
   //ArrayLib.indexOf(data, columnIndex, value)
 }
 
@@ -84,6 +86,19 @@ function madeAnOrder(){
   return ordered //.sort(function(a, b){return a[2]>b[2]})
 }
 
+function getPackTeam(){
+  var ss = SpreadsheetApp.getActiveSpreadsheet()
+  var teamList = ss.getRangeByName("Roster_This_Pack").getValues().slice(2)
+  var team
+  
+  for (var i =0; i < teamList.length; i++){
+    if (teamList[i].length>0){
+      team.push([team[i].slice(0,3)])
+    }
+  }
+  return team
+}
+
 
 function haventOrderedButDidLAstTime(){
   var ss = SpreadsheetApp.getActiveSpreadsheet()
@@ -108,7 +123,7 @@ function haventOrderedButDidLAstTime(){
   return ordered
 }
 
-function haventOrdered(){
+function haventOrdered(){// excludes members on leave
   var ss = SpreadsheetApp.getActiveSpreadsheet()
   var currOrders = ss.getRangeByName("tot_Current_Orders").getValues()[0]
   var prevOrders = ss.getRangeByName("tot_Previous_Orders").getValues()[0]
