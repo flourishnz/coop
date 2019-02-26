@@ -1,6 +1,7 @@
 // ROLLOVER
 // v1.96 Remove a couple of comments
 // v1.95 Change rollover notification recipient - replace Seraphim with Susannah, James. Add Kasey
+//       Phoebe and Tiff code got added somewhere in here
 // v1.94 if not ok to rollover, Activate sheet that requires fix, Log calls
 // v1.93 Correcting daylight saving error, moving validity tests to the front and improving notification
 
@@ -208,8 +209,9 @@ function refreshProducts() {
   copyDown(ss.getRangeByName("tot_Prices"))
 }
 
+
 function rolloverTotals() { // Copy curr order details to prev order, starting with orders
-  log('rolloverTotals...')
+    log('rolloverTotals...')
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   copyNamedRange("tot_Current_Balances", "tot_Previous_Balances");
   copyNamedRange("tot_Current_Orders", "tot_Previous_Orders");
@@ -317,7 +319,7 @@ function okToRollover(){
   if (closeDate < Date.now()-5*days){
     var ui = SpreadsheetApp.getUi();
     ss.getRangeByName('tot_Next_Balance_Date').activateAsCurrentCell()
-    ui.alert("Oops, closing banking date should be in the last 7 days. Change date here AND on the previous spreadsheet.")
+    ui.alert("Oops, closing banking date should be in the last 5 days. Change date here AND on the previous spreadsheet.")
     return false
   }
   
