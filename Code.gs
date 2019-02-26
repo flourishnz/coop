@@ -1,4 +1,6 @@
 // CODE.GS
+
+// v1.05 "Add Members" option added to menu, removed some commented code
 // v1.04 Moved sharePdfPacksheets here for now because it is called by several reports
 // v1.03
 
@@ -55,6 +57,7 @@ if (isDry()) {
   PRICE_COLUMN = 7
   PRODUCT_COLUMN = 2
   UNIT_COLUMN = 3
+  GROUP_COLUMN = 1
   
   USERID_ROW = 4
   USERNAME_ROW = 3
@@ -93,6 +96,7 @@ function onOpen() {
         
       .addSubMenu(SpreadsheetApp.getUi()
                   .createMenu('Structural')
+                    .addItem('Add members', 'addMembers')
                     .addItem('Remove this member', 'removeThisMember')
                     .addItem('Rollover', 'rollover')
                     .addItem('Refresh Formulae', 'refreshFormulae')
@@ -128,6 +132,7 @@ function onOpen() {
     
     .addSubMenu(SpreadsheetApp.getUi()
                 .createMenu('Structural')
+                .addItem('Add members', 'addMembers')
                 .addItem('Remove this member', 'removeThisMember')
                 .addItem('Rollover', 'rollover')
                 .addItem('Refresh Formulae', 'refreshFormulae')
@@ -362,16 +367,6 @@ function getPreTweakedProduct(product){
 
 //--------
 
-// replaced next function with one line - early coding!
-//function getSsSortByName(searchStr){ // returns sorted array of matching file objects (descending) 
-//  var files = []
-//  files = getSheets(searchStr)
-//  //logSheets(files, "presort")
-//  files = files.sort();  //.reverse
-//  //logSheets(files, "postsort")
-//  return files
-//}
-
 function getSsSortByName(searchStr) {// returns sorted array of matching file objects (descending)
   return getSheets(searchStr).sort()
 }
@@ -433,6 +428,18 @@ function isFresh() {
 
 function isNumeric(n) {
   return !isNaN(parseFloat(n)) && isFinite(n);
+}
+
+function dynamicSort(property) {   // eg members.sort(dynamicSort('id'))
+    var sortOrder = 1;
+    if(property[0] === "-") {
+        sortOrder = -1;
+        property = property.substr(1);
+    }
+    return function (a,b) {
+        var result = (a[property] < b[property]) ? -1 : (a[property] > b[property]) ? 1 : 0;
+        return result * sortOrder;
+    }
 }
 
 //--------
