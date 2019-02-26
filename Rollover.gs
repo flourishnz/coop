@@ -1,4 +1,6 @@
 // ROLLOVER
+// v1.96 Remove a couple of comments
+// v1.95 Change rollover notification recipient - replace Seraphim with Susannah, James. Add Kasey
 // v1.94 if not ok to rollover, Activate sheet that requires fix, Log calls
 // v1.93 Correcting daylight saving error, moving validity tests to the front and improving notification
 
@@ -29,8 +31,6 @@ function createOrderSheet(){// developing... this code may not run from within a
 
 function rollover() {//Rollover order - preparing new sheet
   if (okToRollover()){
-    //var ss = SpreadsheetApp.getActiveSpreadsheet();
-    // or, better still, copy sheet
     deleteRunLog();
     
     setStatus("Not ready");
@@ -159,14 +159,18 @@ function refreshOrders() {
     copyDown(ss.getRangeByName("ord_TotalOrdered"))  
   }
   
-  range = ss.getRangeByName("ord_Unit")
-  units = range.getValues()
-  for (i=0; i<units[0].length; i++) {
-    if ((units[0][i] ==="each") ||
-        (units[0][i] ==="EACH"))
-    units[0][i] = "ea"
+  // make units consistent  // buggy in dry - selecting the wrong column - no time to fix
+  if (isFresh) {
+    var range = ss.getRangeByName("ord_Unit")
+    var units = range.getValues()
+    var unit
+    for (var i=0; i<units.length; i++) {
+      unit = units[i][0].toString().toLowerCase()
+      if (unit === "each") {unit = "ea"}
+      units[i][0] = unit
+    }
+    range.setValues(units)
   }
-  range.setValues(units)
 }
 
 
@@ -204,15 +208,20 @@ function refreshProducts() {
   copyDown(ss.getRangeByName("tot_Prices"))
 }
 
-
 function rolloverTotals() { // Copy curr order details to prev order, starting with orders
-    log('rolloverTotals...')
-
+  log('rolloverTotals...')
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
   copyNamedRange("tot_Current_Balances", "tot_Previous_Balances");
   copyNamedRange("tot_Current_Orders", "tot_Previous_Orders");
   copyNamedRange("tot_Current_Credits", "tot_Previous_Credits");
+  
   SpreadsheetApp.getActiveSpreadsheet().getRangeByName("tot_Current_Credits").clearNote().clearContent();
+  if (isFresh) {
+    ss.getRangeByName("tot_TiffCredits").setValue("=pho_PhoebeTiffShare");
+    ss.getRangeByName("tot_PhoebeCredits").setValue("=pho_PhoebeTiffShare");
+  }
 }
+
 
 
 //Copy source values and notes to destination using named ranges
@@ -244,7 +253,8 @@ function notifyNow() {
 
 function notify(msg){
   var ss = SpreadsheetApp.getActiveSpreadsheet()
-  var recipients = ((isFRESH && "michele@rimuchiro.co.nz ,  matt.mcrae86@gmail.com, iamseraphim@gmail.com") ||
+  var recipients = ((isFRESH && "mattrobin24@gmail.com,  matt.mcrae86@gmail.com, susannaresink_6@hotmail.com"
+                    + ", kaseyb@gmail.com, james.d.dilks@gmail.com") ||
                     ("affordableorganics07@gmail.com"))
   var url = ss.getUrl()
   var ssName = ss.getName()
@@ -266,6 +276,7 @@ function tellJulie(msg, optUrl){
                 }
   MailApp.sendEmail(message)  
 }
+
 //---------------------------------------------------------------------------
 function setRolledOver(){
   PropertiesService.getDocumentProperties().setProperty("RolledOver", "true")
@@ -303,7 +314,7 @@ function okToRollover(){
   // Closing date for banking for the last ss of the year must run all the way up to the release of the next sheet in Jan/Feb
   
   var closeDate = new Date(ss.getRangeByName('tot_Next_Balance_Date').getValue())
-  if (closeDate < Date.now()-7*days){
+  if (closeDate < Date.now()-5*days){
     var ui = SpreadsheetApp.getUi();
     ss.getRangeByName('tot_Next_Balance_Date').activateAsCurrentCell()
     ui.alert("Oops, closing banking date should be in the last 7 days. Change date here AND on the previous spreadsheet.")
@@ -374,4 +385,3 @@ function rolloverRosters(){
     ss.setNamedRange('ros_This_Pack', range.offset(range.getNumRows()+2, 0))
   }
 }
-
