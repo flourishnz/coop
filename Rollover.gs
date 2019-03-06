@@ -1,4 +1,5 @@
 // ROLLOVER
+// v1.961 may rollover if date within 7 days, instead of 5
 // v1.96 Remove a couple of comments
 // v1.95 Change rollover notification recipient - replace Seraphim with Susannah, James. Add Kasey
 //       Phoebe and Tiff code got added somewhere in here
@@ -316,10 +317,10 @@ function okToRollover(){
   // Closing date for banking for the last ss of the year must run all the way up to the release of the next sheet in Jan/Feb
   
   var closeDate = new Date(ss.getRangeByName('tot_Next_Balance_Date').getValue())
-  if (closeDate < Date.now()-5*days){
+  if (closeDate < Date.now()-7*days){
     var ui = SpreadsheetApp.getUi();
     ss.getRangeByName('tot_Next_Balance_Date').activateAsCurrentCell()
-    ui.alert("Oops, closing banking date should be in the last 5 days. Change date here AND on the previous spreadsheet.")
+    ui.alert("Oops, closing banking date should be in the last 7 days. Change date here AND on the previous spreadsheet.")
     return false
   }
   
