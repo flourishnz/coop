@@ -1,4 +1,5 @@
 // ROLLOVER
+// v1.962 fix test for Tiff/Phoebe - isFresh should be isFRESH
 // v1.961 may rollover if date within 7 days, instead of 5
 // v1.96 Remove a couple of comments
 // v1.95 Change rollover notification recipient - replace Seraphim with Susannah, James. Add Kasey
@@ -219,7 +220,7 @@ function rolloverTotals() { // Copy curr order details to prev order, starting w
   copyNamedRange("tot_Current_Credits", "tot_Previous_Credits");
   
   SpreadsheetApp.getActiveSpreadsheet().getRangeByName("tot_Current_Credits").clearNote().clearContent();
-  if (isFresh) {
+  if (isFRESH) {
     ss.getRangeByName("tot_TiffCredits").setValue("=pho_PhoebeTiffShare");
     ss.getRangeByName("tot_PhoebeCredits").setValue("=pho_PhoebeTiffShare");
   }
