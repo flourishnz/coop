@@ -30,6 +30,21 @@ function Member() {
       return balances[0][i]
     }
   }
+
+  
+  this.getPayments = function() {
+    return getLatestTransactions(this.id)
+  }
+
+  
+  this.getLatestPayment = function() {
+    var transactions = getLatestTransactions()
+    if (this.id in transactions) {
+      return transactions[this.id][0]
+    } else {
+      return {date: '', payment: 0}
+    }
+  }
   
 }
 
