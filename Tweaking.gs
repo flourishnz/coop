@@ -1,3 +1,6 @@
+// TWEAKING
+// v 1.2 Modify summariseThis to rounding to nearest kg when order is below 0.8 crates, instead of nearest crate
+
 function startTweaking(){
   closeOrdering("Closed - Tweaking")  //lock and setStatus 
   createSheetPreTweaks()
@@ -118,9 +121,18 @@ function summariseThis() {
   var sheet = SpreadsheetApp.getActiveSheet();
   var thisrow = sheet.getActiveCell().getRow();
   var product = getProduct(thisrow)
+  
 
-  var total = Math.round(product.summary.reduce(add, 0)*10000)/10000
-  var target = product.crateCount * Math.round(product.totalCrates)
+  if (product.totalKgs < 0.8*product.crateCount) {
+    //  roundKg
+    var total = Math.round(product.summary.reduce(add, 0)*10000)/10000
+    var target = Math.round(product.totalKgs)
+    } 
+  else {
+    //  round crate
+    var total = Math.round(product.summary.reduce(add, 0)*10000)/10000
+    var target = product.crateCount * Math.round(product.totalCrates)
+  }
   var shortfall = target - total
   var count = product.summary.length
   var unit = (product.unit == "kg" ? " kg" : " items")
@@ -129,8 +141,8 @@ function summariseThis() {
   var data = []
   data.push(product.product)
   data.push(count + " orders totalling " + total + unit)
-  data.push("crate total: " + target) 
-  if (total == target) {
+  data.push("Target: " + target) 
+  if (total == target || (total >= target - 0.05 && total <= target + 0.05)) {
     data.push("NO TWEAKING REQUIRED.")
   } else {
     data.push((shortfall > 0 ? "Short by " + rounded(shortfall) : "Over by " + rounded(shortfall*-1)) + unit)
