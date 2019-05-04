@@ -1,4 +1,5 @@
 // ROLLOVER
+// v1.963 AS Phoebe has left, comment out her share being added to her totals
 // v1.962 fix test for Tiff/Phoebe - isFresh should be isFRESH
 // v1.961 may rollover if date within 7 days, instead of 5
 // v1.96 Remove a couple of comments
@@ -222,7 +223,7 @@ function rolloverTotals() { // Copy curr order details to prev order, starting w
   SpreadsheetApp.getActiveSpreadsheet().getRangeByName("tot_Current_Credits").clearNote().clearContent();
   if (isFRESH) {
     ss.getRangeByName("tot_TiffCredits").setValue("=pho_PhoebeTiffShare");
-    ss.getRangeByName("tot_PhoebeCredits").setValue("=pho_PhoebeTiffShare");
+    //ss.getRangeByName("tot_PhoebeCredits").setValue("=pho_PhoebeTiffShare");
   }
 }
 
