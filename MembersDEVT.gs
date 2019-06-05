@@ -387,7 +387,7 @@
 //  }
 //}
 //
-//  
+// 
 //function removeFromTotals_(member){
 //  var ss = SpreadsheetApp.getActive()
 //  var ids = ss.getRangeByName('tot_Bins').getValues()[0]
@@ -401,23 +401,3 @@
 //  log(['Removed member from Totals', member.id, member.name])
 //}
 //
-////---------------------------------------------------
-//// this code needs to go to CoopLib when ready
-//
-//function removeFromCurrentContacts(member) {
-//  //  Remove contact from current list - has to be run by coop account
-//  if (isFRESH){
-//    var coopGroup = ContactsApp.getContactGroup("Co-op members")  
-//    var exGroup = ContactsApp.getContactGroup("Ex members")
-//    var contacts = ContactsApp.getContactsByName(member.name)
-//    if (contacts.length == 0) {
-//      log(["Contact not found", member.name])
-//    } else {
-//      for (var i in contacts) {
-//        exGroup.addContact(contacts[i])
-//        coopGroup.removeContact(contacts[i])
-//        log(["Moved contact from Co-op Members group to Ex Members group", contact[i].name])
-//      }
-//    }
-//  }
-//}

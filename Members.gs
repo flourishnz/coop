@@ -1,4 +1,6 @@
 // MEMBERS
+// v2.01 removeFromCurrentContacts has been moved to Contacts.gs
+// v2.0 Adjust for new Dry Members sheet layout after Merge
 // v1.5.1 Logging call to addMembers
 
 // 11-8-18 added code to remove member from spreadsheet - still needs some refinement
@@ -14,13 +16,16 @@
 
 
 function Member() {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();   
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  
+  this.fullName = function() {
+    return this.firstName + " " + this.lastName
+  }  
   
   this.getCurrentBalanceDate = function() {
     return ss.getRangeByName("tot_Current_Balance_Date").getValue()
   }
 
-  
   this.getCurrentBalance = function(){
     var balances = ss.getRangeByName("tot_Current_Balances").getValues()
     var ids = ArrayLib.transpose(ss.getRangeByName("tot_IDs").getValues())
@@ -30,13 +35,11 @@ function Member() {
       return balances[0][i]
     }
   }
-
-  
+ 
   this.getPayments = function() {
     return getLatestTransactions(this.id)
   }
-
-  
+ 
   this.getLatestPayment = function() {
     var transactions = getLatestTransactions()
     if (this.id in transactions) {
@@ -58,6 +61,8 @@ function addMembers() {
   }
 }
 
+
+
 function addMember(member) {
   var ss = SpreadsheetApp.getActiveSpreadsheet(); 
   var totals = ss.getSheetByName("Totals");
@@ -69,7 +74,7 @@ function addMember(member) {
   var tcol = insertColumn(totals)
   totals.getRange(ss.getRangeByName("tot_Members").getRow(), tcol).setValue(member.name)
   totals.getRange(ss.getRangeByName("tot_IDs").getRow(), tcol).setValue(member.id)
-  
+  log(["Added member to totals", member.id, member.name])
   
   // ... and initialise balances  
   totals.getRange(ss.getRangeByName("tot_Previous_Balances").getRow(), tcol).setValue(0)
@@ -81,29 +86,45 @@ function addMember(member) {
   
   //   add to Orders sheet
   insertColumn(ss.getSheetByName("Orders"))
+  log(["Added member to orders", member.id, member.name])
   
   //   share worksheet
-  try {
-    ss.addEditor(member.email.trim())  
-  }
-  catch (err) {
-    SpreadsheetApp.getUi().alert("Invalid email address: " + member.email.trim())
-    Logger.log("Invalid email address: " + member.email.trim() + "\n Worksheet not shared.")
-  }  
+  shareSheet(member)
 }
 
 
+function shareSheet(member){
+  var ss = SpreadsheetApp.getActiveSpreadsheet(); 
+  var accounts = findEmailAddresses(member)
+
+  for (i in accounts){
+    try {
+      ss.addEditor(accounts[i])
+      log(["Shared sheet with", member.name, accounts[i]])
+    }
+    catch (err) {
+      SpreadsheetApp.getUi().alert("Invalid email address: " + accounts[i])
+      log(["Invalid email address ", member.name, accounts[i]])
+    }
+  }
+}
+
+function findEmailAddresses(member) {
+  var pattern = /[a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+/gi
+  return  member.gmailAccounts.match(pattern) || member.email.match(pattern) || []
+}
 
 
 function getNewMemberIDs(){
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   // get newest in Members sheet
-  var newestID =  ss.getSheetByName("Members").getDataRange().getValues().pop()[MEM_ID_OFFSET]
-      //ss.getRangeByName("mem_ID").getValues() //.pop()[0]
-  
+      // var newestID =  ss.getSheetByName("Members").getDataRange().getValues().pop()[MEM_ID_OFFSET]
+  var memIDs = ss.getRangeByName("mem_IDs").getValues()
+  memIDs.shift()  // remove header
+  var newestID = Math.max.apply(Math, memIDs)
 
   var existingIDs = ss.getRangeByName("tot_IDs").getValues()     // already  in Totals sheet
-  var lastID = Number(existingIDs[0][existingIDs[0].length-2])
+  var lastID = Number(existingIDs[0][existingIDs[0].length-2])   // -1 for empty colum and -1 to get offset instead of count
   var newIDs = []
   
   for (var id = lastID+1; id <= newestID; id++){
@@ -135,7 +156,7 @@ function insertColumn(sheet) {
 
 
 
-function getMembers(){// returns array of objects
+function getMembers(){// returns array of objects - needs fix returning blank lines at the bottom...
   var ss = SpreadsheetApp.getActiveSpreadsheet()
   var data = ss.getRangeByName("mem_Data").getValues()
   var members = []
@@ -145,10 +166,14 @@ function getMembers(){// returns array of objects
     if (isDRY){
       id = data[i][0].toString()
       members.push({id: id ,
-                    name: data[i][2],
-                    email: data[i][3],
-                    home_phone: data[i][4].toString(),
-                    mobile_phone: data[i][5].toString(),
+                    firstName: data[i][1],
+                    lastName: data[i][2],
+                    name: data[i][1] + " " + data[i][2],
+                    mobile: data[i][3].toString(),
+                    email: data[i][4],
+                    otherPhone: data[i][5].toString(),
+                    gmailAccounts: data[i][6],
+                    homeAddress: data[i][7],
                     row: i
                    })
     } else {
@@ -162,7 +187,6 @@ function getMembers(){// returns array of objects
                      homeAddress: data[i][6] + (data[i][7] ? (', ' + data[i][7]) : ''),
                      row: i
                    })
-
     }
   }
   return members   // an array of objects
@@ -183,10 +207,14 @@ function getMember(arg){// arg is Id or row number in Members Tab(as reported by
   
   if (isDRY){
     member.id = id
-    member.name = data[i][2]
-    member.email = data[i][3]
-    member.homePhone = data[i][4].toString()
-    member.mobile = data[i][5].toString()
+    member.firstName = data[i][1]
+    member.lastName = data[i][2]
+    member.name = data[i][1] + " " + data[i][2]
+    member.mobile = data[i][3].toString()
+    member.email = data[i][4]
+    member.otherPhone = data[i][5].toString()
+    member.gmailAccounts = data[i][6]
+    member.homeAddress = data[i][7]                                    
     member.row = i
   } else {
     // Fresh
@@ -194,7 +222,7 @@ function getMember(arg){// arg is Id or row number in Members Tab(as reported by
     member.id = id
     member.name = data[i][2]
     member.email = data[i][3]
-    member.homePhone = data[i][4].toString()
+    member.otherPhone = data[i][5].toString()
     member.mobile = data[i][5].toString()
     member.homeAddress = data[i][6] + (data[i][7] ? (', ' + data[i][7]) : '')                                 
     member.row = i
@@ -230,7 +258,8 @@ function removeThisMember(){
       return
     }
     var response = ui.alert("Remove " +  sheet.getRange(thisRow, MEM_ID_OFFSET+1).getValue() + " " +
-      sheet.getRange(thisRow, MEM_ID_OFFSET+2).getValue() +
+        sheet.getRange(thisRow, MEM_ID_OFFSET+2).getValue() + " " +
+        sheet.getRange(thisRow, MEM_ID_OFFSET+3).getValue() +
         " from the co-op?", ui.ButtonSet.YES_NO)
         if (response == ui.Button.YES) {removeMember(sheet.getRange(thisRow, MEM_ID_OFFSET+1).getValue())}
   } 
@@ -333,23 +362,4 @@ function removeFromTotals_(member){
   log(['Removed member from Totals', member.id, member.name])
 }
 
-//---------------------------------------------------
-// this code needs to go to CoopLib when ready
-
-function removeFromCurrentContacts(member) {
-  //  Remove contact from current list - has to be run by coop account
-  if (isFRESH){
-    var coopGroup = ContactsApp.getContactGroup("Co-op members")  
-    var exGroup = ContactsApp.getContactGroup("Ex members")
-    var contacts = ContactsApp.getContactsByName(member.name)
-    if (contacts.length == 0) {
-      log(["Contact not found", member.name])
-    } else {
-      for (var i in contacts) {
-        exGroup.addContact(contacts[i])
-        coopGroup.removeContact(contacts[i])
-        log(["Moved contact from Co-op Members group to Ex Members group", contact[i].name])
-      }
-    }
-  }
-}
+//function removeFromCurrentContacts(member) - this code has gone to Contacts

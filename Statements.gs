@@ -210,8 +210,7 @@ adddMemberToContacts(member) - if member not in contacts addContact
                                else if member in once then updateContact
                                else fail
                                
-addContact(member, group)
-updateContact(member, group)
+
 
                                
                           
