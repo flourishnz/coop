@@ -1,5 +1,6 @@
 // CODE.GS
 
+// v1.06 Adjust for new Dry Members sheet layout
 // v1.05 "Add Members" option added to menu, removed some commented code
 // v1.04 Moved sharePdfPacksheets here for now because it is called by several reports
 // v1.03
@@ -41,10 +42,11 @@ if (isFresh()) {
 
   MEMBERSHIP_FEE = 75
   MEM_ID_OFFSET = 1 // MEMBERS SHEET
-  TOT_ID_ROW = 3
+  MEM_MOBILE_OFFSET = 5  // MEMBERS SHEET
+  TOT_ID_ROW = 3  // TOTALS SHEET
   
   CLOSE_DAY = "Monday"
-  CLOSE_TIME = "9:00 pm"
+  CLOSE_TIME = "10:00 pm"
   MIN_ORDER_FEE = 3
 }
 
@@ -64,7 +66,8 @@ if (isDry()) {
   
   MEMBERSHIP_FEE = 25
   MEM_ID_OFFSET = 0 // MEMBERS SHEET
-  TOT_ID_ROW = 2
+  MEM_MOBILE_OFFSET = 3  // MEMBERS SHEET
+  TOT_ID_ROW = 2  // TOTALS SHEET
 
   CLOSE_DAY = "Sunday"
   CLOSE_TIME = "8:00 pm"
