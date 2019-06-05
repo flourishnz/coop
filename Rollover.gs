@@ -1,4 +1,6 @@
 // ROLLOVER
+
+// v1.964 Draft function to release sheet
 // v1.963 AS Phoebe has left, comment out her share being added to her totals
 // v1.962 fix test for Tiff/Phoebe - isFresh should be isFRESH
 // v1.961 may rollover if date within 7 days, instead of 5
@@ -389,4 +391,27 @@ function rolloverRosters(){
     ss.getSheetByName('Roster').hideRows(range.getRow()-1, range.getNumRows()+2)
     ss.setNamedRange('ros_This_Pack', range.offset(range.getNumRows()+2, 0))
   }
+}
+
+function release(){// draft
+  var ss = SpreadsheetApp.getActiveSpreadsheet()
+
+  // open sheet
+  // openOrdering()
+  
+  // assemble message
+  var recipients = ((isFRESH && "mattrobin24@gmail.com,  matt.mcrae86@gmail.com, susannaresink_6@hotmail.com"
+                    + ", kaseyb@gmail.com, james.d.dilks@gmail.com") ||
+                    ("affordableorganics07@gmail.com"))
+  var url = ss.getUrl()
+  var ssName = ss.getName()
+  
+  var message = {to: "flourish.nz@gmail.com" + ", " + recipients,
+                 subject: ssName,
+                 htmlBody: msg + "<br><br><a href='" + url + "'>" + ssName + "</a>"
+                }
+  
+  // send notification to all members
+
+  MailApp.sendEmail(message)
 }
