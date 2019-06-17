@@ -1,5 +1,6 @@
 // ROLLOVER
 
+// v1.965 rolloverDates - Change time between releases to 21 days instead of 28
 // v1.964 Draft function to release sheet
 // v1.963 AS Phoebe has left, comment out her share being added to her totals
 // v1.962 fix test for Tiff/Phoebe - isFresh should be isFRESH
@@ -79,7 +80,7 @@ function rolloverDates(){
   copyNamedRange('tot_Next_Balance_Date', 'tot_Current_Balance_Date')                // copy Next to Current
   
   if (isDRY) {                                                                     
-    rangeNextBD.setValue(addDays(28, nextBD))                 // add 28 days to Next
+    rangeNextBD.setValue(addDays(21, nextBD))                 // add 21 days to Next (was 28)
   } else {//isFresh
     rangeNextBD.setValue(addDays(14, nextBD))               // or add 14 days to Next
   } 
