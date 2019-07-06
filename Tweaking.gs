@@ -1,4 +1,5 @@
 // TWEAKING
+// v 1.3 doneTweaking: generate reports
 // v 1.2 Modify summariseThis to rounding to nearest kg when order is below 0.8 crates, instead of nearest crate
 //       and ease test for whether tweaking required to be within 50g of target.
 
@@ -19,7 +20,19 @@ function startTweaking(){
 
 function doneTweaking(){
   setStatus("Closed - Tweaked")
-  //send email to me|margaret|Ray?
+  runFreshReports()
+  tellJulie("Reports created successfully.")
+}
+
+function runFreshReports(){
+  createReportFreshPacklist()
+  createReportBinList()
+}
+
+function runDryReports(){
+  createReportDryPickupLists()
+  createReportPickupChecklist()
+  createReportStocktake()
 }
 
 
