@@ -1,4 +1,6 @@
+// Adjustments
 
+// v 0.1
 
 function ZeroThisRow(){
   var range = getRangeOrdersThisRow()
