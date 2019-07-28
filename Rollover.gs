@@ -1,7 +1,9 @@
 // ROLLOVER
 
+// v1.966 DRY Before rollover, check members sheet is linked (as well as banking sheet). 
 // v1.965 rolloverDates - Change time between releases to 21 days instead of 28
-// v1.964 Draft function to release sheet
+// v1.964 Draft function to release sheet: release()
+//        Next: improve html, personalise with account details
 // v1.963 AS Phoebe has left, comment out her share being added to her totals
 // v1.962 fix test for Tiff/Phoebe - isFresh should be isFRESH
 // v1.961 may rollover if date within 7 days, instead of 5
@@ -309,14 +311,30 @@ function okToRollover(){
     return false
   }
 
-  // Has banking workbook been connected to this workbook? (otherwise value in a1 shows #REF! and the banking transactions are unavailable)
+  // Have banking and members workbooks been connected to this workbook? (otherwise value in a1 shows #REF! and the banking transactions are unavailable)
   var bankingSheet = ss.getSheetByName("Banking")
   var bankingOK = (bankingSheet.getRange("A1").getValue() != "#REF!")
+  
+  var membersSheet = ss.getSheetByName("Members")
+  var membersOK = (membersSheet.getRange("J1").getValue() != "#REF!")
+
   if (!bankingOK) {
     bankingSheet.activate()
-    ui.alert("Oops, can't run the rollover until the banking link has been reconnected.")
+    if (membersOK) {
+      ui.alert("Oops, can't run the rollover until the banking link has been reconnected.")
+    } else {
+      ui.alert("Oops, can't run the rollover until banking and members links have been reconnected.")
     return false
+    }
+  } else {
+    if (!membersOK) {
+      membersSheet.activate()
+      ui.alert("Oops, can't run the rollover until the members link has been reconnected.")
+      return false
+    }
   }
+    
+ 
  
   // Is the banking rollover date correct? This has to be manually adjusted over summer - IN BOTH the old sheet and the new sheet
   // Closing date for banking for the last ss of the year must run all the way up to the release of the next sheet in Jan/Feb
@@ -398,18 +416,35 @@ function release(){// draft
   var ss = SpreadsheetApp.getActiveSpreadsheet()
 
   // open sheet
-  // openOrdering()
+  //openOrdering()
   
   // assemble message
-  var recipients = ((isFRESH && "mattrobin24@gmail.com,  matt.mcrae86@gmail.com, susannaresink_6@hotmail.com"
-                    + ", kaseyb@gmail.com, james.d.dilks@gmail.com") ||
-                    ("affordableorganics07@gmail.com"))
-  var url = ss.getUrl()
+  
+  var data = ss.getSheetByName("Notices").getDataRange().getDisplayValues()
+  var line = ""
+  var msg  = "<table>"
+  
+  for (var r=0; r < data.length; r++) {
+    line = "<tr>"
+    for (var c=0; c < data[r].length; c++){
+      line += "<td>" + data[r][c] + "</td>"
+    }
+    line += "</tr>"
+    msg += line
+  }
+  msg += "</table>"
+  
+  var recipients = ""
+//  var recipients = ((isFRESH && "mattrobin24@gmail.com,  matt.mcrae86@gmail.com, susannaresink_6@hotmail.com"
+//                    + ", kaseyb@gmail.com, james.d.dilks@gmail.com") ||
+//                    ("affordableorganics07@gmail.com"))
+  
   var ssName = ss.getName()
+  var link = "<a href='" + ss.getUrl() + "'>" + ssName + "</a>"
   
   var message = {to: "flourish.nz@gmail.com" + ", " + recipients,
                  subject: ssName,
-                 htmlBody: msg + "<br><br><a href='" + url + "'>" + ssName + "</a>"
+                 htmlBody: msg + "<br><br>" + link
                 }
   
   // send notification to all members
