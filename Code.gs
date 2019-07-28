@@ -45,8 +45,8 @@ if (isFresh()) {
   MEM_MOBILE_OFFSET = 5  // MEMBERS SHEET
   TOT_ID_ROW = 3  // TOTALS SHEET
   
-  CLOSE_DAY = "Monday"
-  CLOSE_TIME = "10:00 pm"
+  CLOSE_DAY = "Tuesday"
+  CLOSE_TIME = "7:00 am"
   MIN_ORDER_FEE = 3
 }
 
@@ -248,8 +248,8 @@ function setChangeLog(e){
 
 }
 
-// set all the orders in the current row to 0, starting at FIRST_ORDER_COLUMN
 function zeroOutRow() {
+  // set all the orders in the current row to 0, starting at FIRST_ORDER_COLUMN
   var sheet = SpreadsheetApp.getActiveSheet();
   var thisrow = sheet.getActiveCell().getRow();
 
@@ -267,8 +267,8 @@ function zeroOutRow() {
 }
 
 
-// set all the orders in the selected rows to 0, starting at FIRST_ORDER_COLUMN
 function zeroOutSelectedRows() {
+  // set all the orders in the selected rows to 0, starting at FIRST_ORDER_COLUMN
   var sheet = SpreadsheetApp.getActiveSheet();
   var firstRow = sheet.getActiveRange().getRow();       //gets actual row number rather than row index in the range
   var numRows = sheet.getActiveRange().getNumRows();  
