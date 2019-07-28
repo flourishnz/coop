@@ -12,15 +12,15 @@ function testMC(){
 //
 //  var member = {name: "My Test", id: "9998", email: "about@example.com", mobile: "123", address: "321 Lets Drive"}
 
-  var members = getMembers()
-  for (var i = 0; i<members.length; i++){
-    if (members[i].firstName > "Vicki") {addMemberToContacts(members[i])}
-  }
+//  var members = getMembers()
+//  for (var i = 0; i<members.length; i++){
+//    if (members[i].firstName == "Fern") {addMemberToContacts(members[i])}
+//  }
 }
 
 
 function updateMember(member) {
-  // auto-run from co-op account onEdit of Members tab
+  // to be auto-run from co-op account onEdit of Members tab
 }
 
 
@@ -43,7 +43,7 @@ function addMemberToContacts(member) {
     addContact(member, coopGroup)
   } else if (contacts.length == 1){
     updateContact(contacts[0], member, coopGroup)
-  } else {//... handle this better - alert - etc
+  } else {//... fix... handle this better - alert - etc
     log(["Multiple contacts exist with this name. Not updated", member])
     SpreadsheetApp.getUi().alert('Multiple contacts exist with this name. Not updated.\n' + member)
   }
