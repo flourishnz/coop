@@ -69,8 +69,8 @@ if (isDry()) {
   MEM_MOBILE_OFFSET = 3  // MEMBERS SHEET
   TOT_ID_ROW = 2  // TOTALS SHEET
 
-  CLOSE_DAY = "Sunday"
-  CLOSE_TIME = "8:00 pm"
+  CLOSE_DAY = "Monday"
+  CLOSE_TIME = "6:00 pm"
   MIN_ORDER_FEE = 2
 
 
