@@ -420,7 +420,7 @@ function release(){// draft
   
   // assemble message
   
-  var data = ss.getSheetByName("Notices").getDataRange().getDisplayValues()
+  var data = ss.getRangeByName("not_Notices").getDisplayValues()
   var line = ""
   var msg  = "<table>"
   
@@ -433,6 +433,9 @@ function release(){// draft
     msg += line
   }
   msg += "</table>"
+  
+//  couldn't get this bit to work - try getting image from Photos?
+//  msg += "<br><br>" + "<img src='https://drive.google.com/open?id=0B8U6153AfrnmTTB5a2dsTlFxUklZTnBUTjY1VzB0Z3gySW1r'>"
   
   var recipients = ""
 //  var recipients = ((isFRESH && "mattrobin24@gmail.com,  matt.mcrae86@gmail.com, susannaresink_6@hotmail.com"
