@@ -1,4 +1,5 @@
 // TWEAKING
+// v 1.4 playing with success message after generating reports in runFreshReports
 // v 1.3 doneTweaking: generate reports
 // v 1.2 Modify summariseThis to rounding to nearest kg when order is below 0.8 crates, instead of nearest crate
 //       and ease test for whether tweaking required to be within 50g of target.
@@ -25,8 +26,17 @@ function doneTweaking(){
 }
 
 function runFreshReports(){
-  createReportFreshPacklist()
-  createReportBinList()
+  var pckl = createReportFreshPacklist()
+  var binl = createReportBinList() 
+  if (pckl || binl) {
+    var msg = "Report results:\n"
+    msg += pckl ? "Created " + pckl + "\n" 
+                : "Pack list not created\n"
+    msg += binl ? "Created " + binl + "\n" 
+                : "Bin list not created\n"    
+    SpreadsheetApp.getUi().alert(msg)
+  }
+
 }
 
 function runDryReports(){
