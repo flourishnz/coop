@@ -1,6 +1,9 @@
 // FRESH - Pack Lists 
 // June 2018 - Use document templates because Apps Script can't create a document with columns yet
 
+// v1.2 Add in Try-Catch error handling around conversion to pdf - may help with server unavailable - maybe not
+//      Also returns URL of the pdf if no error, or else the (usually temporary) report document
+
 // v 1.1 Moved sharePdfPacksheets to Code
 
 function createReportFreshPacklist() {
@@ -86,15 +89,21 @@ function createReportFreshPacklist() {
   // Create PDF from doc, rename it if required and delete the doc
     
   doc.saveAndClose()
-  
-  var pdf = DriveApp.getFolderById(FOLDER_ID).createFile(copyFile.getAs('application/pdf'))  
-  if (PDF_FILE_NAME !== '') {
-    pdf.setName(PDF_FILE_NAME)
-  } 
-  
-  sharePdfPacksheets(pdf) 
-  copyFile.setTrashed(true)
 
+  try {
+    var pdf = DriveApp.getFolderById(FOLDER_ID).createFile(copyFile.getAs('application/pdf')) 
+    if (PDF_FILE_NAME !== '') {
+      pdf.setName(PDF_FILE_NAME)
+    }
+    //sharePdfPacksheets(pdf)
+    copyFile.setTrashed(true)
+    return pdf.getUrl()
+  }
+  catch(err) {
+    SpreadsheetApp.getUi().alert("Error while converting pack list to pdf\n" + err)
+    return copyFile.getUrl()
+    }
+  
 }
 
 function fillTable(table, product) {
