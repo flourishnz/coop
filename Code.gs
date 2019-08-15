@@ -1,5 +1,6 @@
 // CODE.GS
 
+// v1.07 Add "All pack day reports" option to menu
 // v1.06 Adjust for new Dry Members sheet layout
 // v1.05 "Add Members" option added to menu, removed some commented code
 // v1.04 Moved sharePdfPacksheets here for now because it is called by several reports
@@ -93,7 +94,8 @@ function onOpen() {
     
       .addSubMenu(SpreadsheetApp.getUi()
                   .createMenu('Reports')
-                    .addItem('Pack lists', 'createReportFreshPacklist')
+                    .addItem('Both pack reports', 'runFreshReports')
+                    .addItem('Pack list', 'createReportFreshPacklist')
                     .addItem('Bin list', 'createReportBinList')
                )
         
@@ -128,6 +130,7 @@ function onOpen() {
     
     .addSubMenu(SpreadsheetApp.getUi()
                 .createMenu('Reports')
+                .addItem('All pack reports', 'runDryReports')
                 .addItem('Member orders', 'createReportDryPickupLists')
                 .addItem('Pickup checklist', 'createReportPickupChecklist')
                 .addItem('Stocktake list', 'createReportStocktake')
