@@ -1,5 +1,6 @@
 // ROLLOVER
 
+// v1.967 FRESH Replace James and Susannah with Carol Shortis
 // v1.966 DRY Before rollover, check members sheet is linked (as well as banking sheet). 
 // v1.965 rolloverDates - Change time between releases to 21 days instead of 28
 // v1.964 Draft function to release sheet: release()
@@ -263,8 +264,8 @@ function notifyNow() {
 
 function notify(msg){
   var ss = SpreadsheetApp.getActiveSpreadsheet()
-  var recipients = ((isFRESH && "mattrobin24@gmail.com,  matt.mcrae86@gmail.com, susannaresink_6@hotmail.com"
-                    + ", kaseyb@gmail.com, james.d.dilks@gmail.com") ||
+  var recipients = ((isFRESH && "mattrobin24@gmail.com,  matt.mcrae86@gmail.com, info@carolshortis.com" 
+                    + ", kaseyb@gmail.com") ||
                     ("affordableorganics07@gmail.com"))
   var url = ss.getUrl()
   var ssName = ss.getName()

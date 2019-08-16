@@ -1,26 +1,28 @@
 // CONTACTS
 // adding and removing contacts of new and ex members 
 // can only add contacts to its own contacts list - so must be run by kapitidrycoop or kapitifresh.co.op
-// may be able to use triggers to make this happen from other accounts
+// may be able to use triggers or API to make this happen from other accounts
 //
+// NEXT: TEST
+//       EXPLORE API, onForm etc
+// 0.11 Changes to testMC and comments
 // 0.1 LIVE for dry (I think) using addMembertoContacts
 
 function testMC(){
-//  //var members = getMembers()
-//  var member = {name: "my test", id: "9998", email: "about@example.com", homePhone: 432432,               address: "321 Lets Drive"}
+//  var member = {name: "Anita Mortlock", id: "8182", email: "anitamortlock@icloud.com", mobile: "027 426 7247", address: "12 Whareroa Rd, Raumati South"}
 //  addMemberToContacts(member)
-//
+
 //  var member = {name: "My Test", id: "9998", email: "about@example.com", mobile: "123", address: "321 Lets Drive"}
 
-  var members = getMembers()
-  for (var i = 0; i<members.length; i++){
-    if (members[i].firstName > "Vicki") {addMemberToContacts(members[i])}
+  var member = getMember("8182")
+  if (member) {
+    addMemberToContacts(member)
   }
 }
 
 
 function updateMember(member) {
-  // auto-run from co-op account onEdit of Members tab
+  // NEXT: to be auto-run from co-op account onEdit of Members tab
 }
 
 
@@ -43,7 +45,7 @@ function addMemberToContacts(member) {
     addContact(member, coopGroup)
   } else if (contacts.length == 1){
     updateContact(contacts[0], member, coopGroup)
-  } else {//... handle this better - alert - etc
+  } else {
     log(["Multiple contacts exist with this name. Not updated", member])
     SpreadsheetApp.getUi().alert('Multiple contacts exist with this name. Not updated.\n' + member)
   }

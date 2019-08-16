@@ -1,4 +1,12 @@
 // MEMBERS
+
+// NEXT: removeMember - remove from contacts, revoke access, let Joanne and others know
+// v2.1 add getPreMergeMember - so that (Dry) members in Orders/Totals sheets but
+//        no longer in Members sheet can be properly deleted
+//       Commented out alert to say Member wasn't found but still logging to runlog...
+// put this back???
+//       Commented out row because a) it appeared to be wrong/misleading
+//         b) wasn't using it
 // v2.01 removeFromCurrentContacts has been moved to Contacts.gs
 // v2.0 Adjust for new Dry Members sheet layout after Merge
 // v1.5.1 Logging call to addMembers
@@ -202,8 +210,9 @@ function getMember(arg){// arg is Id or row number in Members Tab(as reported by
   var i = ArrayLib.indexOf(data, MEM_ID_OFFSET, id)   // look for id
   if (i<0)  {
     log(['Member not found in Members tab', id])
-    SpreadsheetApp.getUi().alert('Member not found in Members tab: ' + id);
-    return {}}
+//    SpreadsheetApp.getUi().alert('Member not found in Members tab: ' + id);
+    return {}
+  }
   
   if (isDRY){
     member.id = id
@@ -215,7 +224,7 @@ function getMember(arg){// arg is Id or row number in Members Tab(as reported by
     member.otherPhone = data[i][5].toString()
     member.gmailAccounts = data[i][6]
     member.homeAddress = data[i][7]                                    
-    member.row = i
+//    member.row = i
   } else {
     // Fresh
     member.role = data[i][0]
@@ -225,8 +234,37 @@ function getMember(arg){// arg is Id or row number in Members Tab(as reported by
     member.otherPhone = data[i][5].toString()
     member.mobile = data[i][5].toString()
     member.homeAddress = data[i][6] + (data[i][7] ? (', ' + data[i][7]) : '')                                 
-    member.row = i
+//    member.row = i
   }
+
+  return member
+}
+
+
+function getPreMergeMember(id){// only Dry has this sheet - returns {} to Fresh
+  log(['Entered getPreMergeMember'])
+  try {
+    var sheet = SpreadsheetApp.getActive().getSheetByName("preMergeMembers")
+    var data = sheet.getDataRange().getDisplayValues()
+    }
+  catch (e) {
+    log(['preMergeMembers Sheet not found.'])
+    return {}
+  }
+  
+  var member = new Member();
+  var i = ArrayLib.indexOf(data, 0, id)   // look for id
+  if (i<0)  {
+    log(['Member not found in preMergeMembers tab', id])
+    //SpreadsheetApp.getUi().alert('Member not found in preMergeMembers tab: ' + id);
+    return {}
+  }
+  
+  member.id = id
+  member.name =  data[i][2]
+  member.mobile = data[i][5].toString()
+  member.email = data[i][3]
+  member.otherPhone = data[i][4].toString()
 
   return member
 }
@@ -270,7 +308,14 @@ function removeThisMember(){
 
 function removeMember(id) {
   var member = getMember(id)
-  if (!_.isEmpty(member)) {
+  if (_.isEmpty(member)) {
+    member = getPreMergeMember(id)
+  }
+  
+  if (_.isEmpty(member)) {
+    SpreadsheetApp.getUi().alert(id + ' not found in Members or preMergeMembers sheets\n' +
+                                  'Member not removed.')
+  } else {
     saveExMemberDetails_(member)
     removeFromOrders_(member)
     removeFromTotals_(member)
