@@ -1,6 +1,7 @@
 // FRESH - Bin list 
 // June 2018 - Use document templates because Apps Script can't create a document with columns yet
 
+// v1.2 Break every 5 rows instead of 4
 // v1.1 Add in Try-Catch error handling around conversion to pdf - may help with server unavailable - maybe not
 //      Also returns URL of the pdf if no error, or else the (usually temporary) report document
 
@@ -66,8 +67,8 @@ function fillBinList(table) {
     
     newRow = table.appendTableRow(newRow)
     
-    // put in a break every 4 rows to make it easier to manage the labels
-    if ((i+1)%4 == 0) {
+    // put in a break every 5 rows to make it easier to manage the labels
+    if ((i+1)%5 == 0) {
       newRow.setMinimumHeight(40)
     }
     prevId = member.id

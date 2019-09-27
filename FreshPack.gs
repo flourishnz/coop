@@ -1,7 +1,8 @@
 // FRESH - Pack Lists 
 // June 2018 - Use document templates because Apps Script can't create a document with columns yet
 
-// v1.2 Add in Try-Catch error handling around conversion to pdf - may help with server unavailable - maybe not
+// v 1.3 Update the summary of crates (was reporting 0 crates for partial orders)
+// v 1.2 Add in Try-Catch error handling around conversion to pdf - may help with server unavailable - maybe not
 //      Also returns URL of the pdf if no error, or else the (usually temporary) report document
 
 // v 1.1 Moved sharePdfPacksheets to Code
@@ -55,13 +56,13 @@ function createReportFreshPacklist() {
 
 
     var crates = p.total/p.crateCount  
-    var numCrates = (crates > 1.4 && crates < 2) || (crates > 2.3 && crates < 3)   //... move this calculation into the product or look up actual order
-                       ? Math.floor(crates) +1   //equiv to roundup
-                       : Math.round(crates)
- 
+//    var numCrates = (crates > 1.4 && crates < 2) || (crates > 2.3 && crates < 3)   //... move this calculation into the product or look up actual order
+//                       ? Math.floor(crates) +1   //equiv to roundup
+//                       : Math.round(crates)
+    var numCrates = Math.round(crates)
     
-    if (p.crateCount == 1) {
-      var crateTxt = numCrates + " " + ((p.unit == "KG") ? "kg expected" : "items expected")
+    if (p.crateCount == 1 || crates < 0.8) {
+      var crateTxt = Math.round(p.total) + " " + ((p.unit == "KG") ? "kg expected" : "items expected")
     } else {
       crateTxt = numCrates + ((numCrates == 1) ? " crate" : " crates") + " of " + p.crateCount  + ((p.unit == "KG") ? " kg" : " items") + " expected"
     }
