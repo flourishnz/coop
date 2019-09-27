@@ -1,4 +1,5 @@
 // TWEAKING
+// v 1.41  Call tellIT instead of tellJulie
 // v 1.4 playing with success message after generating reports in runFreshReports
 // v 1.3 doneTweaking: generate reports
 // v 1.2 Modify summariseThis to rounding to nearest kg when order is below 0.8 crates, instead of nearest crate
@@ -12,6 +13,7 @@ function startTweaking(){
   // start with (or ignore) products that have multiple varieties
   // confirm tweak outs
   // consider adding varieties
+  
   // Tweak a product
   //   Summarise total, excess or shortfall
   //   Calculate scaled increase and equal increase
@@ -22,7 +24,7 @@ function startTweaking(){
 function doneTweaking(){
   setStatus("Closed - Tweaked")
   runFreshReports()
-  tellJulie("Reports created successfully.")
+  tellIT("Reports created successfully.")
 }
 
 function runFreshReports(){

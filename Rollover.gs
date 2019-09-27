@@ -1,5 +1,6 @@
 // ROLLOVER
 
+// v1.97  Move email addresses to globals
 // v1.967 FRESH Replace James and Susannah with Carol Shortis
 // v1.966 DRY Before rollover, check members sheet is linked (as well as banking sheet). 
 // v1.965 rolloverDates - Change time between releases to 21 days instead of 28
@@ -264,24 +265,24 @@ function notifyNow() {
 
 function notify(msg){
   var ss = SpreadsheetApp.getActiveSpreadsheet()
-  var recipients = ((isFRESH && "mattrobin24@gmail.com,  matt.mcrae86@gmail.com, info@carolshortis.com" 
-                    + ", kaseyb@gmail.com") ||
-                    ("affordableorganics07@gmail.com"))
+  var recipients = ((isFRESH && [PRICES_EMAIL, LOCAL_EMAIL, ROSTERS_EMAIL, MEMBERSHIP_EMAIL].join(", ")) 
+                     ||
+                    (COOP_EMAIL))
   var url = ss.getUrl()
   var ssName = ss.getName()
-  var message = {to: "flourish.nz@gmail.com" + ", " + recipients,
+  var message = {to: IT_EMAIL + ", " + recipients,
                  subject: "New sheet - " + ssName,
                  htmlBody: msg + "<br><br><a href='" + url + "'>" + ssName + "</a>"
                 }
   MailApp.sendEmail(message)
 }
 
-function tellJulie(msg, optUrl){
+function tellIT(msg, optUrl){
   var ss = SpreadsheetApp.getActiveSpreadsheet()
   var url = optUrl || ss.getUrl()
   var ssName = ss.getName()
   var subject = ((isFRESH && "Fresh - coded message") || ("Dry - coded message"))
-  var message = {to: "flourish.nz@gmail.com",
+  var message = {to: IT_EMAIL,
                  subject: subject,
                  htmlBody: msg + "<br><br><a href='" + url + "'>" + ssName + "</a>"
                 }
@@ -436,19 +437,19 @@ function release(){// draft
   msg += "</table>"
   
 //  couldn't get this bit to work - try getting image from Photos?
-//  msg += "<br><br>" + "<img src='https://drive.google.com/open?id=0B8U6153AfrnmTTB5a2dsTlFxUklZTnBUTjY1VzB0Z3gySW1r'>"
+//  msg += brbr + "<img src='https://drive.google.com/open?id=0B8U6153AfrnmTTB5a2dsTlFxUklZTnBUTjY1VzB0Z3gySW1r'>"
   
   var recipients = ""
-//  var recipients = ((isFRESH && "mattrobin24@gmail.com,  matt.mcrae86@gmail.com, susannaresink_6@hotmail.com"
-//                    + ", kaseyb@gmail.com, james.d.dilks@gmail.com") ||
+//  var recipients = ((isFRESH && "mattrobin24@gmail.com,  matt.mcrae86@gmail.com"
+//                    + "") ||
 //                    ("affordableorganics07@gmail.com"))
   
   var ssName = ss.getName()
   var link = "<a href='" + ss.getUrl() + "'>" + ssName + "</a>"
   
-  var message = {to: "flourish.nz@gmail.com" + ", " + recipients,
+  var message = {to: IT_EMAIL + ", " + recipients,
                  subject: ssName,
-                 htmlBody: msg + "<br><br>" + link
+                 htmlBody: msg + brbr + link
                 }
   
   // send notification to all members

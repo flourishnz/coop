@@ -1,4 +1,5 @@
 // Membership Report
+// v0.2  Move email addresses to globals
 // v0.1 under development
 
 function createReportMembers() {
@@ -25,7 +26,7 @@ function createReportMembers() {
 //  
 //  // close and notify
 //  var id = doc.getId()
-//  tellJulie('Created doc with id: ' + id)
+//  tellIT('Created doc with id: ' + id)
 //  doc.saveAndClose()
   return
 }

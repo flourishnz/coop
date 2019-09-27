@@ -1,4 +1,5 @@
 //// STATEMENTS
+// v0.3  Move email addresses to globals
 //// v0.2
 //
 //// Developing May-June 2018
@@ -116,7 +117,7 @@
 //  MailApp.sendEmail(message)
 //}
 //
-////  tellJulie("<h1>Statement</h1><br>Your Fresh account is ((member.ProvisionalBalance < 0) ? "in debit." : "in credit.") +
+////  tellIT("<h1>Statement</h1><br>Your Fresh account is ((member.ProvisionalBalance < 0) ? "in debit." : "in credit.") +
 ////            " Your balance is $" + member.ProvisionalBalance  + "." +
 ////            
 ////            "<br>" +

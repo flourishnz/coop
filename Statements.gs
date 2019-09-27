@@ -1,5 +1,7 @@
 // STATEMENTS
+// v0.3  Move email addresses to globals
 // v0.2
+
 
 // Developing May-June 2018
 
@@ -60,7 +62,7 @@ function sendStatement(member){
           endNotes +
     '</body>'
 
-  var message = {to: "flourish.nz@gmail.com"     ,//   + ", " + recipients,
+  var message = {to: IT_EMAIL     ,//   + ", " + recipients,
                  subject: "Fresh TEST statement " + ss.getName(),
                  htmlBody: html + "<br><br><a href='" + ss.getUrl() + "'>" + ss.getName() + "</a>"
                 }
@@ -68,7 +70,7 @@ function sendStatement(member){
   MailApp.sendEmail(message)
 }
 
-//  tellJulie("<h1>Statement</h1><br>Your Fresh account is ((member.ProvisionalBalance < 0) ? "in debit." : "in credit.") +
+//  tellIT("<h1>Statement</h1><br>Your Fresh account is ((member.ProvisionalBalance < 0) ? "in debit." : "in credit.") +
 //            " Your balance is $" + member.ProvisionalBalance  + "." +
 //            
 //            "<br>" +

@@ -1,5 +1,7 @@
 // CODE.GS
 
+// v1.2 add MEMBERSHIP_BOND constant
+// v1.1  Move email addresses to globals
 // v1.07 Add "All pack day reports" option to menu
 // v1.06 Adjust for new Dry Members sheet layout
 // v1.05 "Add Members" option added to menu, removed some commented code
@@ -42,13 +44,34 @@ if (isFresh()) {
   USERID_ROW = 4
 
   MEMBERSHIP_FEE = 75
+  MEMBERSHIP_BOND = 50
   MEM_ID_OFFSET = 1 // MEMBERS SHEET
   MEM_MOBILE_OFFSET = 5  // MEMBERS SHEET
   TOT_ID_ROW = 3  // TOTALS SHEET
   
   CLOSE_DAY = "Tuesday"
-  CLOSE_TIME = "7:00 am"
+  CLOSE_TIME = "8:30 am"
   MIN_ORDER_FEE = 3
+
+  COOP_EMAIL = "kapitifresh.co.op@gmail.com"
+  
+  LOCAL_EMAIL = "matt.mcrae86@gmail.com"
+  LOCAL_NAME = "Tiffany"
+  
+  PRICES_EMAIL = "mattrobin24@gmail.com"
+  PRICES_NAME = "Matt"
+  
+  TREASURER_EMAIL = "4fruitandveg@gmail.com"
+  TREASURER_NAME = "Joanne"
+  
+  ROSTERS_EMAIL = "info@carolshortis.com"
+  ROSTERS_NAME = "Carol"
+  
+  MEMBERSHIP_EMAIL = "mooksjoinza@gmail.com"
+  MEMBERSHIP_NAME = "Amanda"
+  
+  IT_EMAIL = "flourish.nz@gmail.com"
+  IT_NAME = "Julie"
 }
 
 if (isDry()) {
@@ -66,19 +89,28 @@ if (isDry()) {
   USERNAME_ROW = 3
   
   MEMBERSHIP_FEE = 25
+  MEMBERSHIP_BOND = 0
   MEM_ID_OFFSET = 0 // MEMBERS SHEET
   MEM_MOBILE_OFFSET = 3  // MEMBERS SHEET
   TOT_ID_ROW = 2  // TOTALS SHEET
 
-  CLOSE_DAY = "Monday"
+  CLOSE_DAY = "Sunday"
   CLOSE_TIME = "6:00 pm"
   MIN_ORDER_FEE = 2
-
+  
+  COOP_EMAIL = "affordableorganics07@gmail.com"
+  
+  TREASURER_EMAIL = "affordableorganics07@gmail.com"
+  ROSTERS_EMAIL = "affordableorganics07@gmail.com"
+  MEMBERSHIP_EMAIL = "affordableorganics07@gmail.com"
+  
+  IT_EMAIL = "kapitidry.coop@gmail.com"
+  IT_NAME = "Julie"
 
 //  VENDOR_COLUMN is undefined
 }
 
-
+brbr = "<br><br>"
 
 
 function onOpen() {
@@ -457,7 +489,5 @@ function reducePenalty(){//correct price from 20% penalty loading to 10% loading
 }
 
 function sharePdfPacksheets(pdf){
-  var recipients = ((isFresh() && "kapitifresh.co.op@gmail.com") ||
-                    ("affordableorganics07@gmail.com"))
-  pdf.addViewers([recipients])  
+  pdf.addViewers([COOP_EMAIL])  
 }
