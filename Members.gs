@@ -1,6 +1,11 @@
 // MEMBERS
 
-// NEXT: removeMember - remove from contacts, revoke access, let Joanne and others know
+// STILL TO DO...: removeMember - remove from contacts, revoke access
+
+// v2.3  Rewrite getMember and getMembers to use Member class and to share code
+//       Also adding in more name handling
+// v2.2  Notify everyone who needs to know when somone is removed from the co-op
+//       Remove from Contacts
 // v2.1 add getPreMergeMember - so that (Dry) members in Orders/Totals sheets but
 //        no longer in Members sheet can be properly deleted
 //       Commented out alert to say Member wasn't found but still logging to runlog...
@@ -26,8 +31,9 @@
 function Member() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   
-  this.fullName = function() {
-    return this.firstName + " " + this.lastName
+  this.getFullName = function() {
+    return (isDRY ? this.firstName + " " + this.lastName
+                 : this.name)
   }  
   
   this.getCurrentBalanceDate = function() {
@@ -165,76 +171,60 @@ function insertColumn(sheet) {
 
 
 function getMembers(){// returns array of objects - needs fix returning blank lines at the bottom...
-  var ss = SpreadsheetApp.getActiveSpreadsheet()
-  var data = ss.getRangeByName("mem_Data").getValues()
-  var members = []
-  var id
-  
-  for (var i = 1; i < data.length; i++){
-    if (isDRY){
-      id = data[i][0].toString()
-      members.push({id: id ,
-                    firstName: data[i][1],
-                    lastName: data[i][2],
-                    name: data[i][1] + " " + data[i][2],
-                    mobile: data[i][3].toString(),
-                    email: data[i][4],
-                    otherPhone: data[i][5].toString(),
-                    gmailAccounts: data[i][6],
-                    homeAddress: data[i][7],
-                    row: i
-                   })
-    } else {
-      id = data[i][1].toString()
-      members.push ({role: data[i][0],
-                     id: id,
-                     name: data[i][2],
-                     email: data[i][3],
-                     homePhone: data[i][4].toString(),
-                     mobile: data[i][5].toString(),
-                     homeAddress: data[i][6] + (data[i][7] ? (', ' + data[i][7]) : ''),
-                     row: i
-                   })
-    }
-  }
-  return members   // an array of objects
+  var data = SpreadsheetApp.getActiveSpreadsheet()
+               .getRangeByName("mem_Data")
+               .getValues()
+               .filter(function(row){return isValidId(row[MEM_ID_OFFSET])})  // drop headers and any invalid member (ids)
+  return data.map(toMember)  
 }
 
-
-
-function getMember(arg){// arg is Id or row number in Members Tab(as reported by onEdit)
+function getMember(arg){// arg is Id or row number in Members Tab(as reported by onEdit) no longer checking for this?
   var sheet = SpreadsheetApp.getActive().getSheetByName("Members") 
   var data = sheet.getDataRange().getValues()
   var member = new Member();
+  
+  // locate member
   var id = isValidId(arg) && arg || isNumeric(arg) && arg <= data.length && data[arg-1][MEM_ID_OFFSET]
   var i = ArrayLib.indexOf(data, MEM_ID_OFFSET, id)   // look for id
   if (i<0)  {
     log(['Member not found in Members tab', id])
-//    SpreadsheetApp.getUi().alert('Member not found in Members tab: ' + id);
+    // SpreadsheetApp.getUi().alert('Member not found in Members tab: ' + id);
     return {}
   }
   
-  if (isDRY){
-    member.id = id
-    member.firstName = data[i][1]
-    member.lastName = data[i][2]
-    member.name = data[i][1] + " " + data[i][2]
-    member.mobile = data[i][3].toString()
-    member.email = data[i][4]
-    member.otherPhone = data[i][5].toString()
-    member.gmailAccounts = data[i][6]
-    member.homeAddress = data[i][7]                                    
-//    member.row = i
+  return toMember(data[i])
+}
+
+function toMember(row) {
+  var member = new Member()
+  var matches
+  if (!isValidId(row[MEM_ID_OFFSET])) {return {}}
+  
+  if (isDRY){    
+    member.id = row[0].toString()
+    member.firstName = row[1]
+    member.lastName = row[2]
+    member.name = row[1] + " " + row[2]
+    member.mobile = row[3].toString()
+    member.email = row[4]
+    member.otherPhone = row[5].toString()
+    member.gmailAccounts = row[6]
+    member.homeAddress = row[7]                                    
+    members.push (member)           
   } else {
     // Fresh
-    member.role = data[i][0]
-    member.id = id
-    member.name = data[i][2]
-    member.email = data[i][3]
-    member.otherPhone = data[i][5].toString()
-    member.mobile = data[i][5].toString()
-    member.homeAddress = data[i][6] + (data[i][7] ? (', ' + data[i][7]) : '')                                 
-//    member.row = i
+    member.role = row[0]
+    member.id = row[1].toString()
+    
+    member.name = row[2].toString().trim()      
+    matches = /(\w+[-']?\w*)\W+(.*)/.exec(member.name)
+    member.firstName = matches[1]
+    member.lastName = matches[2]
+
+    member.email = row[3]
+    member.otherPhone = row[4].toString()
+    member.mobile = row[5].toString()
+    member.homeAddress = row[6] + (row[7] ? (', ' + row[7]) : '')                                 
   }
 
   return member
@@ -271,6 +261,9 @@ function getPreMergeMember(id){// only Dry has this sheet - returns {} to Fresh
 
 //------------------------------------------------------------------------
 
+function testMe(){
+  say (getMembers())
+}
 
 function removeThisMember(){
   // call from Totals sheet or from Members sheet to initiate removal of 'active' member
@@ -316,15 +309,17 @@ function removeMember(id) {
     SpreadsheetApp.getUi().alert(id + ' not found in Members or preMergeMembers sheets\n' +
                                   'Member not removed.')
   } else {
+    notifyRemoval(member)
+    
     saveExMemberDetails_(member)
     removeFromOrders_(member)
     removeFromTotals_(member)
     removeFromMembers_(member)
-    //  removeFromCurrentContacts(member) //must be actioned by coop account
+    removeFromCurrentContacts(member) //must be actioned by coop account
     // revoke access?
-    // send an email to Seraphim/Joanne/coop/kasey etc
   }
 }
+
 
 
 function saveExMemberDetails_(member){// still needs refining...
@@ -362,6 +357,112 @@ function saveExMemberDetails_(member){// still needs refining...
 
 }
 
+
+function notifyRemoval(member, optUrl){
+  var subject = member.getFullName() + " has left the " + (isFRESH ? "Fresh" : "Dry") + " co-op"
+  member.leaveBalance = Number(member.getCurrentBalance()) + MEMBERSHIP_BOND
+  var details = formatAcctDetails_(member)
+  
+  var recentPayments = formatPayments_(member)
+  var link = formatLink(optUrl)
+  var autoGenMsg = brbr + "<small>This message was automatically generated. Please contact " +
+                    IT_NAME + " at " +  IT_EMAIL + " if you have any queries."; 
+  
+  var ui = SpreadsheetApp.getUi()
+  
+
+  if (isDRY) {
+    MailApp.sendEmail({
+      to: [IT_EMAIL, COOP_EMAIL].join(',') ,
+      subject: subject,
+      htmlBody: details + recentPayments + autoGenMsg
+    })
+  } else {// isFRESH
+    
+    
+   // notify Member, Treasurer and IT
+    var action = (member.leaveBalance > 0 
+      ? " Please forward your account details to " + TREASURER_EMAIL + " so that " + TREASURER_NAME + " can arrange a refund." + brbr
+      : "Please contact our treasurer "
+         + TREASURER_NAME + " at " + TREASURER_EMAIL + " if you wish to make special payment arrangements." + brbr);
+  
+    MailApp.sendEmail({
+      to:[member.email, IT_EMAIL, TREASURER_EMAIL].join(','),
+      subject: "Fresh co-op account deleted - " + member.getFullName(),
+      htmlBody: "Hi " + member.firstName + brbr + "Your " 
+      + (isFRESH ? "Fresh" : "Dry") 
+      + " co-op account has been deleted. Your net balance is $" 
+      + Math.abs(member.leaveBalance).toFixed(2) + (member.leaveBalance<0 ? " in debit." : " in credit.")
+      + brbr
+      + action
+      + details
+      + recentPayments
+      + autoGenMsg
+    })
+   
+ 
+    // notify Rosters officer
+    MailApp.sendEmail({
+      to:IT_EMAIL,//ROSTERS_EMAIL,
+      subject: subject,
+      htmlBody: "Hi " + ROSTERS_NAME + brbr
+         + "Please remove " + member.firstName + " (" + member.id + ") from the rosters."
+         + autoGenMsg
+    })
+  
+    // notify Membership officer
+    MailApp.sendEmail({
+      to:IT_EMAIL,//MEMBERSHIP_EMAIL,
+      subject: "FYI: " + subject,
+      htmlBody: autoGenMsg
+    })
+    
+  }
+}
+
+function formatAcctDetails_(member){
+  var date = Utilities.formatDate(member.getCurrentBalanceDate(), "GMT+12:00", "d MMMM yyyy")
+  var details = "<table>"
+  details += "<tr><td>ID</td><td>" + member.id + "</td></tr>"
+  details += "<tr><td>Name</td><td>" + member.getFullName() + "</td></tr>"
+  details += "<tr><td>Balance Date</td><td>" + date + "</td></tr>"
+  
+  details += (isFRESH ? "<tr><td>Closing Balance</td><td>" + "$" + Math.abs(member.getCurrentBalance()).toFixed(2)
+                                                         + (member.getCurrentBalance()>=0 ? " in credit" 
+                                                                                          : " in debit")
+
+                        + "</td></tr>"
+                        + "<tr><td>Bond Refund</td><td>$50.00</td></tr>" 
+                      : "")
+  details += "<tr><td>Net Balance</td><td>" + "$" + Math.abs(member.leaveBalance).toFixed(2)
+                                                  +(member.leaveBalance>=0 ? " in credit" 
+                                                                           : " in debit")
+                                                  + "</td></tr>"
+  details += "</table>"       
+
+  return details
+}
+
+function formatLink(optUrl){
+  var ss = SpreadsheetApp.getActiveSpreadsheet()
+  var url = arguments.length = 1 && optUrl || ss.getUrl()
+  return brbr + "<a href='" + url + "'>" + ss.getName() + "</a>"
+}
+
+function formatPayments_(member) {
+  var payments = member.getPayments()[member.id].reverse()
+  var html = brbr + "<h3>Your Most Recent Payments</h3><table>"
+  html += payments.reduceRight(function (h, payment){
+        return h + "<tr><td>" + formatDate(payment.date) + "</td><td>" 
+                 + "$" + payment.amount.toFixed(2) + "</td></tr>"
+  }, "")
+  html += "</table>"
+  return html
+}
+
+function formatDate(date){
+  return Utilities.formatDate(new Date(date), "GMT+12:00", "d MMM yyyy")
+}
 
 function removeFromMembers_(member){
   var sheet = SpreadsheetApp.getActive().getSheetByName("Members")
@@ -408,3 +509,31 @@ function removeFromTotals_(member){
 }
 
 //function removeFromCurrentContacts(member) - this code has gone to Contacts
+
+function getLatestTransactions() {// saves to ScriptProperties
+  // if transactions have already been cached...
+  var cached = CacheService.getScriptCache().get('transactions')
+  if (cached !== null) {return JSON.parse(cached)}
+
+  // otherwise generate from sheet
+  var ss = SpreadsheetApp.getActiveSpreadsheet()
+  var data = ss.getSheetByName("Banking").getDataRange().getValues()
+  var idCol = ss.getRangeByName("bank_Bin").getColumn()-1
+  var amountCol = ss.getRangeByName("bank_Amount").getColumn()-1
+  var transactions = []
+
+  for (var i = 0; i < data.length; i++) {
+    var id = data[i][idCol]
+    if (!isValidId(id)) {continue}
+    
+    if (!(id in transactions)) {transactions[id] = []}
+    transactions[id].unshift({date: data[i][0], 
+                              amount: data[i][amountCol]
+                             })
+    if (transactions[id].length == 4) transactions[id].pop()
+  }
+
+  // then add to cache and return
+  CacheService.getScriptCache().put("transactions",  JSON.stringify(transactions))
+  return transactions
+}
