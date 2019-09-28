@@ -170,7 +170,7 @@ function insertColumn(sheet) {
 
 
 
-function getMembers(){// returns array of objects - needs fix returning blank lines at the bottom...
+function getMembers(){// returns array of objects
   var data = SpreadsheetApp.getActiveSpreadsheet()
                .getRangeByName("mem_Data")
                .getValues()
@@ -181,9 +181,8 @@ function getMembers(){// returns array of objects - needs fix returning blank li
 function getMember(arg){// arg is Id or row number in Members Tab(as reported by onEdit) no longer checking for this?
   var sheet = SpreadsheetApp.getActive().getSheetByName("Members") 
   var data = sheet.getDataRange().getValues()
-  var member = new Member();
   
-  // locate member
+  // locate member, if there
   var id = isValidId(arg) && arg || isNumeric(arg) && arg <= data.length && data[arg-1][MEM_ID_OFFSET]
   var i = ArrayLib.indexOf(data, MEM_ID_OFFSET, id)   // look for id
   if (i<0)  {
@@ -403,7 +402,7 @@ function notifyRemoval(member, optUrl){
  
     // notify Rosters officer
     MailApp.sendEmail({
-      to:IT_EMAIL,//ROSTERS_EMAIL,
+      to:ROSTERS_EMAIL,
       subject: subject,
       htmlBody: "Hi " + ROSTERS_NAME + brbr
          + "Please remove " + member.firstName + " (" + member.id + ") from the rosters."
@@ -412,7 +411,7 @@ function notifyRemoval(member, optUrl){
   
     // notify Membership officer
     MailApp.sendEmail({
-      to:IT_EMAIL,//MEMBERSHIP_EMAIL,
+      to:MEMBERSHIP_EMAIL,
       subject: "FYI: " + subject,
       htmlBody: autoGenMsg
     })
