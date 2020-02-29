@@ -1,4 +1,5 @@
 // TWEAKING
+// v 1.5 Tweaking target changed because Chantal now have minimums
 // v 1.41  Call tellIT instead of tellJulie
 // v 1.4 playing with success message after generating reports in runFreshReports
 // v 1.3 doneTweaking: generate reports
@@ -149,10 +150,10 @@ function summariseThis() {
   var product = getProduct(thisrow)
   
 
-  if (product.totalKgs < 0.8*product.crateCount) {
+  if (product.totalKgs < 0.55*product.crateCount) {
     //  roundKg
     var total = Math.round(product.summary.reduce(add, 0)*10000)/10000
-    var target = Math.round(product.totalKgs)
+    var target = 0  //Math.round(product.totalKgs)
     } 
   else {
     //  round crate

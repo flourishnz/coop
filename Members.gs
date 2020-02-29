@@ -314,7 +314,7 @@ function removeMember(id) {
     removeFromOrders_(member)
     removeFromTotals_(member)
     removeFromMembers_(member)
-    removeFromCurrentContacts(member) //must be actioned by coop account
+//    removeFromCurrentContacts(member) //must be actioned by coop account
     // revoke access?
   }
 }
@@ -359,7 +359,7 @@ function saveExMemberDetails_(member){// still needs refining...
 
 function notifyRemoval(member, optUrl){
   var subject = member.getFullName() + " has left the " + (isFRESH ? "Fresh" : "Dry") + " co-op"
-  member.leaveBalance = Number(member.getCurrentBalance()) + MEMBERSHIP_BOND
+  member.leavingBalance = Number(member.getCurrentBalance()) + MEMBERSHIP_BOND
   var details = formatAcctDetails_(member)
   
   var recentPayments = formatPayments_(member)
@@ -377,10 +377,11 @@ function notifyRemoval(member, optUrl){
       htmlBody: details + recentPayments + autoGenMsg
     })
   } else {// isFRESH
+    // Co-op closed
+    var closure = "At the recent AGM of Kapiti Fresh co-op, the members reluctantly voted to wind up the co-op." + brbr
     
-    
-   // notify Member, Treasurer and IT
-    var action = (member.leaveBalance > 0 
+    // notify Member, Treasurer and IT
+    var action = (member.leavingBalance > 0 
       ? " Please forward your account details to " + TREASURER_EMAIL + " so that " + TREASURER_NAME + " can arrange a refund." + brbr
       : "Please contact our treasurer "
          + TREASURER_NAME + " at " + TREASURER_EMAIL + " if you wish to make special payment arrangements." + brbr);
@@ -388,10 +389,13 @@ function notifyRemoval(member, optUrl){
     MailApp.sendEmail({
       to:[member.email, IT_EMAIL, TREASURER_EMAIL].join(','),
       subject: "Fresh co-op account deleted - " + member.getFullName(),
-      htmlBody: "Hi " + member.firstName + brbr + "Your " 
+      htmlBody: "Hi " + member.firstName + brbr 
+      + closure
+      + "Your " 
       + (isFRESH ? "Fresh" : "Dry") 
       + " co-op account has been deleted. Your net balance is $" 
-      + Math.abs(member.leaveBalance).toFixed(2) + (member.leaveBalance<0 ? " in debit." : " in credit.")
+      + Math.abs(member.leavingBalance).toFixed(2) 
+      + (member.leavingBalance<0 ? " in debit." : " in credit.")
       + brbr
       + action
       + details
@@ -400,23 +404,23 @@ function notifyRemoval(member, optUrl){
     })
    
  
-    // notify Rosters officer
-    MailApp.sendEmail({
-      to:ROSTERS_EMAIL,
-      subject: subject,
-      htmlBody: "Hi " + ROSTERS_NAME + brbr
-         + "Please remove " + member.firstName + " (" + member.id + ") from the rosters."
-         + autoGenMsg
-    })
+//    // notify Rosters officer
+//    MailApp.sendEmail({
+//      to:ROSTERS_EMAIL,
+//      subject: subject,
+//      htmlBody: "Hi " + ROSTERS_NAME + brbr
+//         + "Please remove " + member.firstName + " (" + member.id + ") from the rosters."
+//         + autoGenMsg
+//    })
   
-    // notify Membership officer
-    MailApp.sendEmail({
-      to:MEMBERSHIP_EMAIL,
-      subject: "FYI: " + subject,
-      htmlBody: autoGenMsg
-    })
+//    // notify Membership officer
+//    MailApp.sendEmail({
+//      to:MEMBERSHIP_EMAIL,
+//      subject: "FYI: " + subject,
+//      htmlBody: autoGenMsg
+//    })
     
-  }
+  } //isFresh
 }
 
 function formatAcctDetails_(member){
@@ -433,8 +437,8 @@ function formatAcctDetails_(member){
                         + "</td></tr>"
                         + "<tr><td>Bond Refund</td><td>$50.00</td></tr>" 
                       : "")
-  details += "<tr><td>Net Balance</td><td>" + "$" + Math.abs(member.leaveBalance).toFixed(2)
-                                                  +(member.leaveBalance>=0 ? " in credit" 
+  details += "<tr><td>Net Balance</td><td>" + "$" + Math.abs(member.leavingBalance).toFixed(2)
+                                                  +(member.leavingBalance>=0 ? " in credit" 
                                                                            : " in debit")
                                                   + "</td></tr>"
   details += "</table>"       

@@ -49,8 +49,8 @@ if (isFresh()) {
   MEM_MOBILE_OFFSET = 5  // MEMBERS SHEET
   TOT_ID_ROW = 3  // TOTALS SHEET
   
-  CLOSE_DAY = "Tuesday"
-  CLOSE_TIME = "8:30 am"
+  CLOSE_DAY = "Monday"
+  CLOSE_TIME = "9:00 pm"
   MIN_ORDER_FEE = 3
 
   COOP_EMAIL = "kapitifresh.co.op@gmail.com"
@@ -119,9 +119,10 @@ function onOpen() {
     SpreadsheetApp.getUi()
     
     .createMenu('Co-op Admin')
-      .addItem('Open Ordering', 'openOrdering')
-      .addItem('Send Reminders', 'sendReminderSMS')
-      .addItem('Close Ordering', 'closeOrdering')                  
+//      .addItem('Open Ordering', 'openOrdering')
+//      .addItem('Send Reminders', 'sendReminderSMS')')
+//      .addItem('Close Ordering', 'closeOrdering')
+      .addItem('Notify this member of balance', 'notifyThisMemberOfBalance')
 
     
       .addSubMenu(SpreadsheetApp.getUi()
