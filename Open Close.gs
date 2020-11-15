@@ -1,4 +1,5 @@
 // OPEN CLOSE
+// v2.21 Change order of sheets - move Notices to the back, move Rosters to the front
 // v1.2
 
 
@@ -137,7 +138,7 @@ function tidyUpSheets() {
 
 function sortSheets() {
   var ss = SpreadsheetApp.getActiveSpreadsheet()
-  var ordered = ["Notices", "Orders", "Pre-tweak Orders", "Totals", "Banking", "Roster","Members", "FAQ", "Bank Acct Details", "FreshDirect Order"] 
+  var ordered = ["Roster", "Orders",  "Totals", "Banking", "Members", "FAQ", "Notices"]   //"Pre-tweak Orders" , "Bank Acct Details", "FreshDirect Order"] 
   
   for (var i = 0; i < ordered.length; i++){
     try {
