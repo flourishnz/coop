@@ -23,7 +23,8 @@
 // 17-Jul-16 added onEdit - Change Log
 //--------------------------------------
 
-var _ = LodashGS.load()
+const _ = LodashGS.load()
+
 
 if (isFresh()) { 
   isFRESH = true
@@ -94,7 +95,7 @@ if (isDry()) {
   MEM_MOBILE_OFFSET = 3  // MEMBERS SHEET
   TOT_ID_ROW = 2  // TOTALS SHEET
 
-  CLOSE_DAY = "Sunday"
+  CLOSE_DAY = "Monday"
   CLOSE_TIME = "6:00 pm"
   MIN_ORDER_FEE = 2
   
@@ -176,6 +177,7 @@ function onOpen() {
                 .addItem('Rollover', 'rollover')
                 .addItem('Refresh Formulae', 'refreshFormulae')
                 .addItem('Tidy Up', 'tidyUpSheets')
+                .addItem('Temp','temp')
                )
     .addToUi();
     
@@ -405,6 +407,11 @@ function getPreTweakedProduct(product){
 }
 
 //--------
+
+function getSsNames(){// WORKS but VERY slow - opens all files to get names...
+  const files = getSsSortByName("^Dry Orders Merged*")
+  log(files.map(sheet => SpreadsheetApp.open(sheet).getName()))
+}
 
 function getSsSortByName(searchStr) {// returns sorted array of matching file objects (descending)
   return getSheets(searchStr).sort()

@@ -1,5 +1,8 @@
 // ROLLOVER
 
+// v1.99  generalise notify to notify(recipients, subject, msg), special case notifyNico()
+// v1.98  addDays: replace call to getYear(was getting 2 digit year)  with getFullYear  (getting 4 digit year)
+//                - seems to have changed behaviour a few months ago, with v8? 
 // v1.97  Move email addresses to globals
 // v1.967 FRESH Replace James and Susannah with Carol Shortis
 // v1.966 DRY Before rollover, check members sheet is linked (as well as banking sheet). 
@@ -61,7 +64,7 @@ function rollover() {//Rollover order - preparing new sheet
     
     rolloverRosters();
     
-    notify("Spreadsheet is ready for updating.")
+    notifyNico();
     triggerReminders();
     
     // Remove users
@@ -96,7 +99,7 @@ function addDays(numDays, initialDate){
   var days = hours * 24;
   
   var newDateTime = new Date(initialDate.getTime() + numDays*days + 1*hours) // 28 days later between 00:00 - 02:00 depending on daylight saving transitions
-  var newDate = new Date(newDateTime.getYear(), newDateTime.getMonth(), newDateTime.getDate())  // drop time component
+  var newDate = new Date(newDateTime.getFullYear(), newDateTime.getMonth(), newDateTime.getDate())  // drop time component
   return newDate
 }
 
@@ -259,22 +262,21 @@ function deleteRunLog(){
   }
 }
 
-function notifyNow() {
-  notify("New spreadsheet is ready for release...")
+function notifyNico() {
+  notify("affordableorganics07@gmail.com", "New Sheet", "New spreadsheet is ready for updating...")
 }
 
-function notify(msg){
+function notify(recipients, subject, msg){
   var ss = SpreadsheetApp.getActiveSpreadsheet()
-  var recipients = ((isFRESH && [PRICES_EMAIL, LOCAL_EMAIL, ROSTERS_EMAIL, MEMBERSHIP_EMAIL].join(", ")) 
-                     ||
-                    (COOP_EMAIL))
   var url = ss.getUrl()
   var ssName = ss.getName()
   var message = {to: IT_EMAIL + ", " + recipients,
-                 subject: "New sheet - " + ssName,
-                 htmlBody: msg + "<br><br><a href='" + url + "'>" + ssName + "</a>"
+                 subject: subject, //+ " - " + ssName,
+                 htmlBody: "<a href='" + url + "'>" + ssName + "</a>" + brbr + msg
                 }
   MailApp.sendEmail(message)
+  //log (["Emailed...", recipients])
+
 }
 
 function tellIT(msg, optUrl){
@@ -301,12 +303,12 @@ function clearRolledOver(){
 function okToRollover(){
   var ss = SpreadsheetApp.getActiveSpreadsheet()
   var days = 1000 * 60 * 60 * 24  //  num of ms/day
+  var ui = SpreadsheetApp.getUi()
 
   
   // Have we rolled over already?
   var props = PropertiesService.getDocumentProperties()
   var rolledOver = props.getProperty("RolledOver")
-  var ui = SpreadsheetApp.getUi();
 
   if (rolledOver === "true") {
     ui.alert("Oops, you probably didn't mean to do that - it seems rollover has already been run and running it again might really screw things up.")
@@ -343,7 +345,6 @@ function okToRollover(){
   
   var closeDate = new Date(ss.getRangeByName('tot_Next_Balance_Date').getValue())
   if (closeDate < Date.now()-7*days){
-    var ui = SpreadsheetApp.getUi();
     ss.getRangeByName('tot_Next_Balance_Date').activateAsCurrentCell()
     ui.alert("Oops, closing banking date should be in the last 7 days. Change date here AND on the previous spreadsheet.")
     return false
@@ -417,7 +418,6 @@ function rolloverRosters(){
 function release(){// draft
   var ss = SpreadsheetApp.getActiveSpreadsheet()
 
-  // open sheet
   //openOrdering()
   
   // assemble message
