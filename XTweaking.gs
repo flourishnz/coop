@@ -6,6 +6,23 @@
 // v 1.2 Modify summariseThis to rounding to nearest kg when order is below 0.8 crates, instead of nearest crate
 //       and ease test for whether tweaking required to be within 50g of target.
 
+/*
+startTweaking
+doneTweaking
+runFreshReports
+runDryReports
+createSheetPreTweaks
+getProduct
+saveProductOrders
+summariseOrders
+showTweakbar
+summariseThis
+tweakAdd
+tweakScale
+add
+*/
+
+
 function startTweaking(){
   closeOrdering("Closed - Tweaking")  //lock and setStatus 
   createSheetPreTweaks()
