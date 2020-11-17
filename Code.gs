@@ -1,5 +1,6 @@
 // CODE.GS
 
+// v1.3 moved isValidId from Statements to Code
 // v1.2 add MEMBERSHIP_BOND constant
 // v1.1  Move email addresses to globals
 // v1.07 Add "All pack day reports" option to menu
@@ -474,6 +475,10 @@ function isFresh() {
 
 function isNumeric(n) {
   return !isNaN(parseFloat(n)) && isFinite(n);
+}
+
+function isValidId(id) {
+  return /^\d{4}$/.test(id)
 }
 
 function dynamicSort(property) {   // eg members.sort(dynamicSort('id'))

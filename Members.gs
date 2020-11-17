@@ -3,6 +3,7 @@
 // STILL TO DO...: removeMember - revoke access,remove from contacts (other account),  
 //                 addMember - add to Contacts (other Account)
 
+// v2.52 change getLatestPayment to call getTransactions(id, 0) instead of getLatestTransactions - no functional change expected
 // v2.51 call formatOrders after adding new members
 // v2.5  4/6/20 Corrections to adding member and to updating contacts (id), also modifying add code to insert an old member in the correct place
 //       BUT haven't done anything with the bit that detects members to be added
@@ -33,7 +34,8 @@
 //   
 
 
-function Member(ss = SpreadsheetApp.getActiveSpreadsheet()) {
+function Member() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet()
   
   this.getFullName = function() {
     return (isDRY ? this.firstName + " " + this.lastName
@@ -143,9 +145,9 @@ function Member(ss = SpreadsheetApp.getActiveSpreadsheet()) {
   }
  
   this.getLatestPayment = function() {
-    var transactions = getLatestTransactions()
-    if (this.id in transactions) {
-      return transactions[this.id][0]
+    var transaction = getTransactions(this.id, 1)
+    if (transaction.length > 0) {
+      return transaction[0]
     } else {
       return {date: '', payment: 0}
     }

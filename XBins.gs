@@ -1,6 +1,12 @@
 // FRESH - Bin list 
 // June 2018 - Use document templates because Apps Script can't create a document with columns yet
 
+/*
+createReportBinList
+fillBinList(table)
+getFreshMembersWhoOrdered
+*/
+
 // v1.2 Break every 5 rows instead of 4
 // v1.1 Add in Try-Catch error handling around conversion to pdf - may help with server unavailable - maybe not
 //      Also returns URL of the pdf if no error, or else the (usually temporary) report document
