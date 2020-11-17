@@ -1,32 +1,33 @@
 // Folding
 
 // 1.0 Code created to assist with winding up FRESH Jan 2020 - sending messages with balances to members 
- 
-function closeLastPaymentDate(id) {
-  var member = getMember(id)
-  return member.getLatestPayment().date
-}
+// emailReminder was moved to Reminders
+/*
 
-function tt (){
-  
-}
+Folding
+-------
+notifyThisMemberOfBalance            - intended to be used from menu, not tested from Totals sheet            - calls notifyLeavingBalance
+notifyLeavingBalance(member, OptUrl) - emails a message about Fresh co-op closing, including leaving balance  - calls formatFinalAcctDetails_(member)                                   
+formatFinalAcctDetails_(member)      - 
 
-function notifyThisMemberOfBalance(){  // created to suit winding up of co-op - needs work to go live with Dry
-  // call from Totals sheet or from Ex Members sheet to notify member of current balance
+*/
+
+function notifyThisMemberOfBalance(){  // created to suit winding up of Fresh - needs work to go live with Dry
+  // call from Totals sheet (NOT COMPLETED) or from Ex Members sheet to notify member of current balance
+  var ui = SpreadsheetApp.getUi()
   var range = SpreadsheetApp.getActiveRange();
   var sheet = range.getSheet()
   var sheetName = sheet.getName()
   var thisCol = range.getColumn()
   var thisRow = range.getRow()
-  var ui = SpreadsheetApp.getUi();
 
   if (sheetName == 'Totals'){
     if (thisCol <= 4){
       ui.alert("Please move to a member column.")
     } else {
-//      var response = ui.alert("Remove " +  sheet.getRange(TOT_ID_ROW-1, thisCol).getValue() + " from the co-op?", ui.ButtonSet.YES_NO)
+//      var response = ui.alert("Notify " +  sheet.getRange(TOT_ID_ROW-1, thisCol).getValue() + " of balance?", ui.ButtonSet.YES_NO)
 //      if (response == ui.Button.YES) {
-     // notifyBalance(//sheet.getRange(TOT_ID_ROW, thisCol).getValue())
+     // notifyLeavingBalance(//sheet.getRange(TOT_ID_ROW, thisCol).getValue())
 //    }
     }
     return
@@ -48,13 +49,14 @@ function notifyThisMemberOfBalance(){  // created to suit winding up of co-op - 
     member.closingBalance = data[6]
     member.netBalance = data[11]
     member.email = data[16]
-    notifyBalance(member)
+    notifyLeavingBalance(member)
   } 
   else {ui.alert("Select a cell in the member's row in Ex Members, or in the member's column in Totals and try again.")}  
 }
 
 
-function notifyBalance(member, optUrl){
+
+function notifyLeavingBalance(member, optUrl){
   var subject = member.getFullName() + " has left the " + (isFRESH ? "Fresh" : "Dry") + " co-op"
   member.Balance = Number(member.getCurrentBalance()) + MEMBERSHIP_BOND
   var details = formatFinalAcctDetails_(member)
@@ -64,9 +66,6 @@ function notifyBalance(member, optUrl){
   var autoGenMsg = brbr + "<small>This message was automatically generated. Please contact " +
                     IT_NAME + " at " +  IT_EMAIL + " if you have any queries."; 
   
-  var ui = SpreadsheetApp.getUi()
-  
-
   if (isDRY) {
     MailApp.sendEmail({
       to: [IT_EMAIL, COOP_EMAIL].join(',') ,
@@ -82,7 +81,7 @@ function notifyBalance(member, optUrl){
       ? " Please forward your account details to " + TREASURER_EMAIL + " so that " + TREASURER_NAME + " can arrange a refund." + brbr
       : "Please contact our treasurer "
          + TREASURER_NAME + " at " + TREASURER_EMAIL + " if you wish to make special payment arrangements." + brbr);
-  
+    
     MailApp.sendEmail({
       to:[IT_EMAIL].join(','),    //member.email, IT_EMAIL, TREASURER_EMAIL
       subject: "Fresh co-op credit - " + member.name,

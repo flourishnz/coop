@@ -2,24 +2,67 @@
 // adding and removing contacts of new and ex members 
 // can only add contacts to its own contacts list - so must be run by kapitidrycoop or kapitifresh.co.op
 // may be able to use triggers or API to make this happen from other accounts
+
+// Most of the contacts code has moved to Dry Members, where it is run by kapitidrycoop, to add contacts to its own contact group
+// I don;t really want the contacts in my Contacts anyway
+/*
+
+regroupUnsentContacts
+addToGroup
+updateMember
+addMemberToContacts
+removeFromCurrentContacts
+
+addContact
+updateContact
+  updateId_
+  updateMobile_
+  updateHomePhone_
+  updateOtherPhone_
+  updateAddress_
+  updateEmail_
+
+hasID
+setID
+getID
+
+*/
 //
 // NEXT: TEST
 //       EXPLORE API, onForm etc
 // 0.11 Changes to testMC and comments
 // 0.1 LIVE for dry (I think) using addMembertoContacts
 
-function testMC(){
-//  var member = {name: "Anita Mortlock", id: "8182", email: "anitamortlock@icloud.com", mobile: "027 426 7247", address: "12 Whareroa Rd, Raumati South"}
-//  addMemberToContacts(member)
 
-//  var member = {name: "My Test", id: "9998", email: "about@example.com", mobile: "123", address: "321 Lets Drive"}
+function regroupUnsentContacts(ss = SpreadsheetApp.getActive()){
+  // one-off function to make temporary groups of the rest after gmail refused to send more individual emails
+  // could use something like this to create the G1 to G4 groups each time as temporary accurate groups
+  
+  // get ids that have not yet been emailed 
+  var range = ss.getRangeByName("tempIDs")
+  var tempIDs = range.getDisplayValues().filter(x => x[1]=="").map(x => x[0])
+  
+  // split into three arrays of 25 or so that gmail won't spit the dummy about
+  var a1 = tempIDs.slice(0,25)
+  var a2 = tempIDs.slice(25, 50)
+  var a3 = tempIDs.slice(50, 75)
 
-  var member = getMember("8182")
-  if (member) {
-    addMemberToContacts(member)
-  }
+  // get Contact groups
+  var a1Group = ContactsApp.getContactGroup("a1")
+  var a2Group = ContactsApp.getContactGroup("a2")
+  var a3Group = ContactsApp.getContactGroup("a3")
+  
+  // add each contact to matching group
+  a1.map(x => addToGroup(x, a1Group))
+  a2.map(x => addToGroup(x, a2Group))
+  a3.map(x => addToGroup(x, a3Group))
+  
 }
 
+function addToGroup(id, group) {
+  var contacts = ContactsApp.getContactsByCustomField(id, 'Dry ID')
+  contacts.map(c => group.addContact(c))  //c.addToGroup(group))
+}
 
 function updateMember(member) {
   // NEXT: to be auto-run from co-op account onEdit of Members tab
@@ -53,8 +96,13 @@ function addMemberToContacts(member) {
 
 function removeFromCurrentContacts(member) {
   //  Remove contact from current list - has to be run by coop account
-  if (isFRESH){
+  if (isDRY){
     var coopGroup = ContactsApp.getContactGroup("Co-op members")
+    var g1 = ContactsApp.getContactGroup("G1 members A-D")
+    var g2 = ContactsApp.getContactGroup("G1 members E-J")
+    var g3 = ContactsApp.getContactGroup("G1 members K-R")
+    var g4 = ContactsApp.getContactGroup("G1 members S-Z")
+
     var exGroup = ContactsApp.getContactGroup("Ex members")
     var contacts = ContactsApp.getContactsByName(member.name)
     if (contacts.length == 0) {
@@ -63,14 +111,14 @@ function removeFromCurrentContacts(member) {
       for (var i in contacts) {
         exGroup.addContact(contacts[i])
         coopGroup.removeContact(contacts[i])
-        log(["Moved contact from Co-op Members group to Ex Members group", contact[i].name])
+        g1.removeContact(contacts[i])
+        g2.removeContact(contacts[i])
+        g3.removeContact(contacts[i])
+        g4.removeContact(contacts[i])
+        log(["Moved contact from Co-op Members groups to Ex Members group", contact[i].name])
       }
     }
-  } 
-  else {
-    
   }
-
 }
 
 
@@ -93,7 +141,7 @@ function addContact(member, group){
   // add contact to group; also add to system Contacts group or will not be able to manually edit contact
   contact.addToGroup(group)
   contact.addToGroup(ContactsApp.getContactGroup("System Group: My Contacts"))
-  log(["Added member to contacts", member])
+  log(["Added member to contacts", member.name])
 }  
 
 
@@ -116,7 +164,7 @@ function updateContact(contact, member, coopGroup){
 }
 
 
-function updateId_(contact, id){//... problem here as the IDs never match - type problem
+function updateId_(contact, id){
   // Id  - add id if missing - quit if id exists but doesn't match
   if (!isValidId(id)){
     log(["ERROR UPDATING CONTACT", "Invalid id supplied", id])
@@ -125,8 +173,8 @@ function updateId_(contact, id){//... problem here as the IDs never match - type
   if (!hasID(contact)) {
     setID(contact, id)
   } else {
-    if (id !== getID(contact)){
-      log(["ERROR UPDATING CONTACT", "Member id is different from the id already recorded in the contact", 'New: ' +id, getID(contact) ])
+    if (id != getID(contact)){
+      log(["ERROR UPDATING CONTACT", "Member id is different from the id already recorded in the contact", 'New: ' +id, 'Old: ' +getID(contact) ])
       return -1
     }
   }
@@ -197,7 +245,7 @@ function updateOtherPhone_(contact, otherphone) {
 }
 
 function updateAddress_(contact, address) {//... not convinced about this one
-  log('called address' + address)
+  log(['called address' , address])
   var addresses = contact.getAddresses('Home')
   if (!address) {
     for (var p in addresses) {
@@ -208,14 +256,15 @@ function updateAddress_(contact, address) {//... not convinced about this one
   }
   
   if (addresses.length == 0) {
-    log(['Contact Updated', 'Added address for', contact.getFullName(), address])
+    log("Adding address...")
     contact.addAddress("Home", address)
+    log(['Contact Updated', 'Added address for', contact.getFullName(), address])
   } else {
     if (address !== addresses[0].getAddress()) {//address changed
       log(['Contact Updated', 'Changed address for', contact.getFullName(), 'from '+ addresses[0].getAddress(), 'to '+ address])
       addresses[0].setAddress(address).setLabel("Home")
     } else {
-      log('Huh?')
+      log('Address not changed. No update required.')
     }
   }
 }
@@ -246,7 +295,8 @@ function updateEmail_(contact, email) {
 function hasID(contact) {
   var fields = contact.getCustomFields()
   for (var i =0; i < fields.length; i++) {
-    if (isFresh() && fields[i].getLabel() == 'Fresh ID' || isDry() && fields[i].getLabel() == 'Dry ID') {return true}
+    if (isFresh() && fields[i].getLabel() == 'Fresh ID' || 
+        isDry() && fields[i].getLabel() == 'Dry ID' && fields[i].getValue() != "") {return true}
   }
   return false
 }
@@ -260,11 +310,10 @@ function setID(contact, id) {
 }
 
 function getID(contact) {
-  var fields = contact.getCustomFields("Fresh ID")
   if (isFresh()) {
-    contact.getCustomFields("Fresh ID")
+    var fields = contact.getCustomFields("Fresh ID")
   } else {
-    contact.getCustomFields("Dry ID")
+    var fields = contact.getCustomFields("Dry ID")
   }
   
   if (fields.length == 0) {
@@ -279,9 +328,9 @@ function getID(contact) {
   }
 }
 
-function getFreshContacts() {
-  var contacts = ContactsApp.getContactGroup("Co-op members local").getContacts()
-  //return contacts.filter(function (i) {return hasID(i)})
-}
-
+// No longer required - was used for reporting
+//function getFreshContacts() {
+//  var contacts = ContactsApp.getContactGroup("Co-op members local").getContacts()
+//  //return contacts.filter(function (i) {return hasID(i)})
+//}
 

@@ -5,14 +5,16 @@
  Getting all past balances for a particular customer
  --------------------------------------------------
  getCustomerHistory() - NOT IN USE? - goes back through many ss, applying getMemberAccounts to each.  Kinda works but super slow - ok for one member, not for everyone
+                                    - gets payments but not returning them? see also Statements:getTotals
  getMemberAccounts(id, ss) - gets ALL payment information (unlimited) and the balances from SS for one member only
  
  
  Sending out current balances to members
  ---------------------------------------
  ... add code to step through all contacts in sensible order - currently limited to group method because Gmail limits generated emails to 35ish per day on free account
+ 
  emailGroup(group) - calls sendReleaseEmail for each member of the contact group - currently defaults to "G0 partial"
- sendReleaseEmail(contact) - sends individualised release email to a contact
+ sendReleaseEmail(contact) - sends individualised release email to a contact - WORKING 2020
  
  SAMPLEformatReleaseAcctDetails_(member) - NOT CALLED = possibly still the same as the one used when closing accounts
 */
@@ -43,7 +45,7 @@ Release emails using a contact list -
   get contacts from list eg "g4 members S-Z"
   for each contact
     emailrelease - pass in the preferred email addresses from the contact instead of using the one on the member's record (???)
-***********/
+****************************************************************************/
 
 function emailGroup(group = "G0 partial"){
   const contactsGroup = ContactsApp.getContactGroup(group)
