@@ -1,9 +1,18 @@
 // STATEMENTS
+/*
+INCOMPLETE??? Never used. 
+
+Much of this seems to have been duplicated/attempted with a different approach earlier or later. See Balances and Folding, both working in 2020
+
+testStatements
+sendStatement(member)   - 
+getLatestTotals(optID)  - 
+getTotals(ssObj)        - for getting totals from a past ss instead of the current one
+
+*/
+// v0.4  Resurrecting... June 2020
 // v0.3  Move email addresses to globals
 // v0.2
-
-
-// Developing May-June 2018
 
 //function showDialog(data) {
 //  var template = HtmlService.createTemplateFromFile('testDialog')
@@ -17,36 +26,19 @@
 
 //...still to do 
 // move contacts code to CoopCoopLib
-// updateEmail
-// updateID ?
-
 
 function testStatements(){
-//  var id = "3102"
-//  var member = getLatestTotals(id)
-//  say (member)
-//  say(getBanking(member.id))
-//  say (getEmail(member.id))
-  var rtn = getFreshContacts()
-  var data = "Got " + rtn.length + " contacts"
-  showDialog(data)
-}
-
-
-
-function getBanking(id) {
-  var ss = SpreadsheetApp.getActiveSpreadsheet()
-  var data = ss.getSheetByName("Banking").getDataRange().getValues()
-  if (data[0][7] !==  "BIN") {return}
-  var transactions = []
-  for (var i = data.length-1; i > 0; i--) {
-    if (data[i][7] == id) {
-      transactions.push({date: data[i][0],
-                         amount: data[i][1],
-                         id: data[i][7]})
-    }
-  }
-  return transactions// all entries for id
+  //  say(getTransactions("8122"))
+  
+  //  var id = "3102"
+  //  var member = getLatestTotals(id)
+  //  say (member)
+  //  say(getBanking(member.id))
+  //  say (getEmail(member.id))
+  
+  //  var rtn = getFreshContacts()
+  //  var data = "Got " + rtn.length + " contacts"
+  //  showDialog(data)
 }
 
 
@@ -70,7 +62,7 @@ function sendStatement(member){
   MailApp.sendEmail(message)
 }
 
-//  tellIT("<h1>Statement</h1><br>Your Fresh account is ((member.ProvisionalBalance < 0) ? "in debit." : "in credit.") +
+//  tellIT("<h1>Statement</h1><br>Your Dry co-op account is ((member.ProvisionalBalance < 0) ? "in debit." : "in credit.") +
 //            " Your balance is $" + member.ProvisionalBalance  + "." +
 //            
 //            "<br>" +
@@ -107,9 +99,8 @@ function sendStatement(member){
 
 function getLatestTotals(optID){
   var ID = optID || ""
-  var ssObj = getLatestSS("Fresh Orders 20")  
+  var ssObj = getLatestSS("Dry Orders Merged 20")  // could be more general but don't want to accidentally pick up test ss
   var totals = getTotals(ssObj)
-  var re = /^\d{4}$/
 
   if (isValidId(ID)) {     
     return totals[ID]
@@ -130,27 +121,28 @@ function getTotals(ssObj){//tested for Fresh only
   var data = sheet.getDataRange().getValues()
   
 // Locate, select and transpose the totals section
-  var iSubtotal = ArrayLib.indexOf(data, 0, "Sub-total")
+  var iSubtotal = ArrayLib.indexOf(data, 2, "Subtotal")
   var balances = data.slice(iSubtotal, iSubtotal+20)
   var transBalances = ArrayLib.transpose(balances)
       
 // Locate headers
-  var iContingency = ArrayLib.indexOf(balances, 0, "Contingency (wastage, errors, admin...)")
-  var iAccounting = ArrayLib.indexOf(balances, 0, "Accounting and IT")
-  var iMembership = ArrayLib.indexOf(balances, 0, "Membership")
-  var iOrderTotal = ArrayLib.indexOf(balances, 0, "Order Total")
+  var iContingency = ArrayLib.indexOf(balances, 2, "Contingency")
+  var iAccounting = ArrayLib.indexOf(balances, 2, "Service fee")
+//  var iMembership = ArrayLib.indexOf(balances, 2, "Membership")
+//  var iOrderTotal = ArrayLib.indexOf(balances, 0, "Order Total")
   
-  var iNames = ArrayLib.indexOf(balances, 0, "Fresh Accounts")
+  var iNames = ArrayLib.indexOf(balances, 0, "Dry Accounts")
   var iIDs = ArrayLib.indexOf(balances, 0, "Totals")
   
-  var iPreviousBalance = ArrayLib.indexOf(balances, 0, "Previous Order")
+  var iPreviousBalance = ArrayLib.indexOf(balances, 0, "PREVIOUS ORDER")
   var iPreviousOrder = ArrayLib.indexOf(balances, 4, "Previous Order")
-  var iPreviousPayments = ArrayLib.indexOf(balances, 4, "payments received between...")
-  var iPreviousOtherCredits = ArrayLib.indexOf(balances, 4, "Other credits and debits")
+  var iPreviousPayments = ArrayLib.indexOf(balances, 1, "payments received between")
+  var iPreviousOtherCredits = ArrayLib.indexOf(balances, 4, "other credits/debits")
   
-  var iCurrentBalance = ArrayLib.indexOf(balances, 0, "Current Order")
+  var iCurrentBalance = ArrayLib.indexOf(balances, 0, "CURRENT ORDER")
   var iCurrentOrder = ArrayLib.indexOf(balances, 4, "Current order total (as above)")
   var iCurrentPayments = iCurrentOrder + 1
+  var iCurrentOtherCredits = iCurrentOrder + 2
 
 
   var iProvisionalBalance = ArrayLib.indexOf(balances, 4, "Provisional Balance")
@@ -165,7 +157,7 @@ function getTotals(ssObj){//tested for Fresh only
 
 // step through the members
   
-  for(var i = 5; i < balances[6].length; i++){   // 5 is the first member column - get this from somewhere?
+  for(var i = 9; i < balances[6].length; i++){   // 9 is the first member column - get this from somewhere?
 
     member = transBalances[i];
     id = member[iIDs].toString()
@@ -177,7 +169,7 @@ function getTotals(ssObj){//tested for Fresh only
         
         Contingency: member[iContingency],
         Accounting: member[iAccounting],
-        Membership: member[iMembership],
+        //Membership: member[iMembership],
         OrderTotal: member[iOrderTotal],
         
         PreviousBalance: member[iPreviousBalance],
@@ -200,20 +192,5 @@ function getTotals(ssObj){//tested for Fresh only
 
 
 
-function isValidId(id) {
-  return /^\d{4}$/.test(id)
-}
 
 
-/*--------------------------------------------------------
-getMembers() - [objects] from Members tab
-
-adddMemberToContacts(member) - if member not in contacts addContact
-                               else if member in once then updateContact
-                               else fail
-                               
-
-
-                               
-                          
------------------------------------------------------------*/
