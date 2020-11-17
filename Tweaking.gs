@@ -136,11 +136,12 @@ function summariseOrders(orders){// selects and sorts non-zero entries
 
 
 function showTweakbar(data){
+  var ui = SpreadsheetApp.getUi()
   var template = HtmlService.createTemplateFromFile('tweakbar');
   template.data = data
-  var ui = template.evaluate()
+  var sb = template.evaluate()
                    .setTitle('Order details');
-  SpreadsheetApp.getUi().showSidebar(ui);
+  ui.showSidebar(sb);
 }
 
 
@@ -194,10 +195,11 @@ function summariseThis() {
 
 // add to all orders of this product, the same amount, in grams, +ve or -ve
 function tweakAdd(){
-  var ui = SpreadsheetApp.getUi()
   var sheet = SpreadsheetApp.getActiveSheet();
   var thisrow = sheet.getActiveCell().getRow();
   var product = getProduct(thisrow)
+  var ui = SpreadsheetApp.getUi()
+
 
   // Get adjustment (positve or negtive ok, get in grams, convert to kg)
   

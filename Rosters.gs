@@ -2,6 +2,7 @@
 // not complete - doesn't look right - eg first function doesn't retun anything yet!  29-2-20 regex functions not working either
 
 function getCurrentRoster() {
+  var ui = SpreadsheetApp.getUi()
   var ss = SpreadsheetApp.getActiveSpreadsheet()
   var range = ss.getRangeByName("ros_This_Pack")
   var arr = range.getValues()
