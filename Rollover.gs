@@ -1,5 +1,6 @@
 // ROLLOVER
 
+// v2.01  refreshOrders: Repair code to make units consistent
 // v2.00 Removed Fresh code
 // v1.99  generalise notify to notify(recipients, subject, msg), special case notifyNico()
 // v1.98  addDays: replace call to getYear(was getting 2 digit year)  with getFullYear  (getting 4 digit year)
@@ -135,16 +136,14 @@ function refreshTotals() {
 function refreshOrders() {
   // reset formulae
   var ss = SpreadsheetApp.getActiveSpreadsheet();
-  // copyDown(ss.getRangeByName("ord_Prices"))
-  // copyDown(ss.getRangeByName("ord_TotalOrdered"))  
+  copyDown(ss.getRangeByName("ord_Prices"))
+  copyDown(ss.getRangeByName("ord_TotalOrdered"))
   
-  
-  // make units consistent...
+  // make units consistent... in lowercase and "ea" not "each"
   var range = ss.getRangeByName("ord_Unit")
   var data = range.getValues()
   range.setValues(data.map(x => x[0].match(/each/i) ? ["ea"]
                                                     : [x[0].toString().toLowerCase()]))
-
 }
 
 
@@ -158,7 +157,7 @@ function matchNumLines(){ // after adding products to Orders, add lines to Total
   var lastOrder = ss.getSheetByName("Orders").getLastRow() - 1
   
   if (lastOrder > lastTotal) {// more orders than totals
-    sheet.insertRowsBefore(lastTotal-1, lastOrder-lastTotal)   //add lines to totals
+    sheet.insertRowsBefore(lastTotal-10, lastOrder-lastTotal)   //add lines to totals
   } else if (lastOrder < lastTotal){
     sheet.deleteRows(10, lastTotal-lastOrder)                  // remove lines from totals
   }
@@ -240,7 +239,7 @@ function tellIT(msg, optUrl){
   var ss = SpreadsheetApp.getActiveSpreadsheet()
   var url = optUrl || ss.getUrl()
   var ssName = ss.getName()
-  var subject = "Dry - coded message"
+  var subject = "Dry Co-op - coded message"
   var message = {to: IT_EMAIL,
                  subject: subject,
                  htmlBody: msg + "<br><br><a href='" + url + "'>" + ssName + "</a>"
