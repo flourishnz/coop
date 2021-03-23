@@ -167,6 +167,16 @@ function addMembers() {
   formatOrders()
 }
 
+function tempadd(id="8233"){
+  var member = getMember(id)
+  //...broke around here...
+  //   add to Orders sheet
+  insertColumn(SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Orders"))
+  log(["Added member to orders", member.id, member.name])
+  
+  //   share worksheet
+  shareSheet(member)
+}
 
 function addMember(member) {
   var ss = SpreadsheetApp.getActiveSpreadsheet(); 

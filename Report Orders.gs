@@ -3,7 +3,7 @@
 
 // v0.06
 
-function createReportDryPickupLists() {
+function createReportOrders() {
   
   var TEMPLATE_ID = '1IQKKvDM8AMvvxi5VsNmARzzFdiWWk3nstC6POTQzDNQ'  // dry pack list template
   var FOLDER_ID = '1Ur9LaAUeYzlIFxQ77bO3oj0hJ0UIDULc'               // reports go to dry/reports
@@ -95,8 +95,6 @@ function createReportDryPickupLists() {
   copyFile.setTrashed(true)
 
 }
-
-
 
 
 function getDryOrdersByMember(){// actually works with Fresh except haven't handled TWEAKS (OR LACK THEREOF)

@@ -1,5 +1,7 @@
 // CODE.GS
 
+// v1.4 Removed Fresh code
+//      Renaming entries in Reports menu
 // v1.3 moved isValidId from Statements to Code
 // v1.2 add MEMBERSHIP_BOND constant
 // v1.1  Move email addresses to globals
@@ -26,164 +28,85 @@
 
 const _ = LodashGS.load()
 
+isFRESH = false
+isDRY = true
+FIRST_ORDER_COLUMN = 9
+FIRST_ORDER_ROW = 6
 
-if (isFresh()) { 
-  isFRESH = true
-  isDRY = false
-  VENDOR_COLUMN = 2
-  PRODUCT_COLUMN = 3
-  UNIT_COLUMN = 4
-  CRATE_COUNT_COLUMN = 5
-  PRICE_EXCL_COLUMN = 6
-  PRICE_COLUMN = 7
-  TOTAL_KGS_COLUMN = 8
-  TOTAL_CRATES_COLUMN = 9
+PRICE_COLUMN = 7
+PRODUCT_COLUMN = 2
+UNIT_COLUMN = 3
+GROUP_COLUMN = 1
 
-  FIRST_ORDER_COLUMN = 10
-  FIRST_ORDER_ROW = 5
-  
-  USERNAME_ROW = 3
-  USERID_ROW = 4
+USERID_ROW = 4
+USERNAME_ROW = 3
 
-  MEMBERSHIP_FEE = 75
-  MEMBERSHIP_BOND = 50
-  MEM_ID_OFFSET = 1 // MEMBERS SHEET
-  MEM_MOBILE_OFFSET = 5  // MEMBERS SHEET
-  TOT_ID_ROW = 3  // TOTALS SHEET
-  
-  CLOSE_DAY = "Monday"
-  CLOSE_TIME = "9:00 pm"
-  MIN_ORDER_FEE = 3
+MEMBERSHIP_FEE = 25
+MEMBERSHIP_BOND = 0
+MEM_ID_OFFSET = 0 // MEMBERS SHEET
+MEM_MOBILE_OFFSET = 3  // MEMBERS SHEET
+TOT_ID_ROW = 2  // TOTALS SHEET
 
-  COOP_EMAIL = "kapitifresh.co.op@gmail.com"
-  
-  LOCAL_EMAIL = "matt.mcrae86@gmail.com"
-  LOCAL_NAME = "Tiffany"
-  
-  PRICES_EMAIL = "mattrobin24@gmail.com"
-  PRICES_NAME = "Matt"
-  
-  TREASURER_EMAIL = "4fruitandveg@gmail.com"
-  TREASURER_NAME = "Joanne"
-  
-  ROSTERS_EMAIL = "info@carolshortis.com"
-  ROSTERS_NAME = "Carol"
-  
-  MEMBERSHIP_EMAIL = "mooksjoinza@gmail.com"
-  MEMBERSHIP_NAME = "Amanda"
-  
-  IT_EMAIL = "flourish.nz@gmail.com"
-  IT_NAME = "Julie"
-}
+CLOSE_DAY = "Monday"
+CLOSE_TIME = "6:00 pm"
+MIN_ORDER_FEE = 2
 
-if (isDry()) {
-  isFRESH = false
-  isDRY = true
-  FIRST_ORDER_COLUMN = 9
-  FIRST_ORDER_ROW = 6
-  
-  PRICE_COLUMN = 7
-  PRODUCT_COLUMN = 2
-  UNIT_COLUMN = 3
-  GROUP_COLUMN = 1
-  
-  USERID_ROW = 4
-  USERNAME_ROW = 3
-  
-  MEMBERSHIP_FEE = 25
-  MEMBERSHIP_BOND = 0
-  MEM_ID_OFFSET = 0 // MEMBERS SHEET
-  MEM_MOBILE_OFFSET = 3  // MEMBERS SHEET
-  TOT_ID_ROW = 2  // TOTALS SHEET
+COOP_EMAIL = "affordableorganics07@gmail.com"
 
-  CLOSE_DAY = "Monday"
-  CLOSE_TIME = "6:00 pm"
-  MIN_ORDER_FEE = 2
-  
-  COOP_EMAIL = "affordableorganics07@gmail.com"
-  
-  TREASURER_EMAIL = "affordableorganics07@gmail.com"
-  ROSTERS_EMAIL = "affordableorganics07@gmail.com"
-  MEMBERSHIP_EMAIL = "affordableorganics07@gmail.com"
-  
-  IT_EMAIL = "kapitidry.coop@gmail.com"
-  IT_NAME = "Julie"
+TREASURER_EMAIL = "affordableorganics07@gmail.com"
+ROSTERS_EMAIL = "affordableorganics07@gmail.com"
+MEMBERSHIP_EMAIL = "affordableorganics07@gmail.com"
+
+IT_EMAIL = "kapitidry.coop@gmail.com"
+IT_NAME = "Julie"
 
 //  VENDOR_COLUMN is undefined
-}
+
 
 brbr = "<br><br>"
 
 
 function onOpen() {
+  SpreadsheetApp.getUi()
 
-  if (isFRESH){
-    SpreadsheetApp.getUi()
-    
     .createMenu('Co-op Admin')
-//      .addItem('Open Ordering', 'openOrdering')
-//      .addItem('Send Reminders', 'sendReminderSMS')')
-//      .addItem('Close Ordering', 'closeOrdering')
-      .addItem('Notify this member of balance', 'notifyThisMemberOfBalance')
+    .addItem('Open Ordering', 'openOrdering')
+    .addItem('Send Reminders', 'sendReminderSMS')
+    .addItem('Close Ordering', 'closeOrdering')
 
-    
-      .addSubMenu(SpreadsheetApp.getUi()
-                  .createMenu('Reports')
-                    .addItem('Both pack reports', 'runFreshReports')
-                    .addItem('Pack list', 'createReportFreshPacklist')
-                    .addItem('Bin list', 'createReportBinList')
-               )
-        
-      .addSubMenu(SpreadsheetApp.getUi()
-                  .createMenu('Structural')
-                    .addItem('Add members', 'addMembers')
-                    .addItem('Remove this member', 'removeThisMember')
-                    .addItem('Rollover', 'rollover')
-                    .addItem('Refresh Formulae', 'refreshFormulae')
-                    .addItem('Test statements', 'testStatements')
-                 )
-      .addToUi();
-    
-    SpreadsheetApp.getUi()
-    .createMenu('Tweaking')
-      .addItem('Close Ordering and Start Tweaking', 'startTweaking')     
-      .addItem('Zero out these products', 'zeroOutSelectedRows')
-      .addItem('Reinstate this product', 'reinstateRow')
-      .addItem('Summarise this product', 'summariseThis')
-      .addItem('Finish Tweaking', 'doneTweaking')   
-    .addToUi();
-  }
-  else {
-    SpreadsheetApp.getUi()
-    
-    .createMenu('Co-op Admin')
-      .addItem('Open Ordering', 'openOrdering')
-      .addItem('Send Reminders', 'sendReminderSMS')
-      .addItem('Close Ordering', 'closeOrdering')                                      
+    .addSubMenu(SpreadsheetApp.getUi()
+      .createMenu('Tweak')
       .addItem('Zero out this product', 'zeroOutSelectedRows')
       .addItem('Reinstate this product', 'reinstateRow')
-    
+    )
+
     .addSubMenu(SpreadsheetApp.getUi()
-                .createMenu('Reports')
-                .addItem('All pack reports', 'runDryReports')
-                .addItem('Member orders', 'createReportDryPickupLists')
-                .addItem('Pickup checklist', 'createReportPickupChecklist')
-                .addItem('Stocktake list', 'createReportStocktake')
-               )
-    
+      .createMenu('Reports')
+      .addItem('All pack reports', 'runDryReports')
+      .addItem('Orders', 'createReportOrders')
+      .addItem('Checklist', 'createReportPickupChecklist')
+      .addItem('Stocktake', 'createReportStocktake')
+    )
+
     .addSubMenu(SpreadsheetApp.getUi()
-                .createMenu('Structural')
-                .addItem('Add members', 'addMembers')
-                .addItem('Remove this member', 'removeThisMember')
-                .addItem('Rollover', 'rollover')
-                .addItem('Refresh Formulae', 'refreshFormulae')
-                .addItem('Tidy Up', 'tidyUpSheets')
-                .addItem('Temp','temp')
-               )
+      .createMenu('Structural')
+      .addItem('Add members', 'addMembers')
+      .addItem('Remove this member', 'removeThisMember')
+      .addItem('Rollover', 'rollover')
+      .addItem('Refresh Formulae', 'refreshFormulae')
+      .addItem('Tidy Up', 'tidyUpSheets')
+      .addItem('Temp', 'temp')
+    )
+
+    .addSubMenu(SpreadsheetApp.getUi()
+      .createMenu('Development')
+      .addItem('Call TempTest', 'TempTest')
+      .addItem('Trigger statements', 'TriggerStatements')
+    )
     .addToUi();
-    
-  }
+
 }
+
 
 
  
@@ -218,23 +141,6 @@ function onEdit(e){
     
     makeToast(e)
   } 
-  else 
-    if (srcSheet.getName() === "Members"){
-      var newValue = (typeof e.value == "object" ? e.range.getValue() : e.value); 
-      var oldValue = e.oldValue || ""                  // e.oldValue could be "undefined"
-
-      var col = e.range.getColumn()
-      var row = e.range.getRow()
-      var editedId = srcSheet.getRange(row, MEM_ID_OFFSET+1).getValue()
-      var editedName = srcSheet.getRange(row, MEM_ID_OFFSET+2).getValue()
-//      log(["Member change detected", editedName, editedId, 'Old: ' + oldValue, 'New: ' + newValue ])
-
-      if (isValidId(editedId) && editedName.length > 0) {
-        var member = getMember(row)
-        CoopCoopLib.addMemberToContacts(member)
-        log(["Member updated", editedName, editedId, 'Old: ' + oldValue, 'New: ' + newValue])
-      }
-    }
 }
   
 

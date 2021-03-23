@@ -1,5 +1,6 @@
 // ROLLOVER
 
+// v2.00 Removed Fresh code
 // v1.99  generalise notify to notify(recipients, subject, msg), special case notifyNico()
 // v1.98  addDays: replace call to getYear(was getting 2 digit year)  with getFullYear  (getting 4 digit year)
 //                - seems to have changed behaviour a few months ago, with v8? 
@@ -54,7 +55,6 @@ function rollover() {//Rollover order - preparing new sheet
 
     log('Deletions...')
     deleteOrders();
-    if (isFRESH){ clearFreshDirect()  };
     deletePreTweakSheet();
     deleteChangeLog();
 
@@ -69,8 +69,6 @@ function rollover() {//Rollover order - preparing new sheet
     
     // Remove users
     // Load notices   
-    // Load local
-    // Load FreshDirect
     log('Rollover completed successfully')
   }
 }  
@@ -86,11 +84,8 @@ function rolloverDates(){
   copyNamedRange('tot_Current_Balance_Date', 'tot_Previous_Balance_Date')            // copy Current to Previous
   copyNamedRange('tot_Next_Balance_Date', 'tot_Current_Balance_Date')                // copy Next to Current
   
-  if (isDRY) {                                                                     
-    rangeNextBD.setValue(addDays(21, nextBD))                 // add 21 days to Next (was 28)
-  } else {//isFresh
-    rangeNextBD.setValue(addDays(14, nextBD))               // or add 14 days to Next
-  } 
+  rangeNextBD.setValue(addDays(21, nextBD))                 // add 21 days to Next (was 28)
+
 }
 
 function addDays(numDays, initialDate){
@@ -104,35 +99,11 @@ function addDays(numDays, initialDate){
 }
 
 
-
 function deleteOrders(){
   var ss = SpreadsheetApp.getActiveSpreadsheet().getRangeByName('ord_Data').clearContent();
 }
 
-
-function clearFreshDirect(){
-  SpreadsheetApp.getActiveSpreadsheet().getRangeByName("ord_FreshDirect_Pricelist").clearContent()
-}
   
-function refreshVendors(){// only refreshing main orders at the moment - overwrites chantal over all vendors
-  if (isFRESH){
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var prices = ss.getRangeByName("ord_FreshDirect_Pricelist")
-    var sheet = ss.getSheetByName("Orders");
-    var range = sheet.getRange(prices.getRow(), VENDOR_COLUMN-1, prices.getNumRows(), 2);  //get VENDOR_COLUMN and the one before it (section labels)
-    var data = range.getValues()
-    
-    for (var i=0; i < data.length; i++){
-      if (data[i][0] === "") {
-        data[i][1] = "Chantal"
-      }
-    }
-    range.setValues(data)
-  }
-}
-
-
-
 function deletePreTweakSheet(){
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheets = ss.getSheets()
@@ -148,7 +119,6 @@ function deletePreTweakSheet(){
 
 
 function refreshFormulae() {
-  //refreshVendors()    // orders sheet -not running because it just puts chantal over all vendors
   refreshOrders()     // orders sheet
   refreshProducts()   // totals sheet
   refreshTotals()     // totals sheet
@@ -165,27 +135,18 @@ function refreshTotals() {
 function refreshOrders() {
   // reset formulae
   var ss = SpreadsheetApp.getActiveSpreadsheet();
-  copyDown(ss.getRangeByName("ord_Prices"))
-  if (isFRESH) {
-    copyDown(ss.getRangeByName("ord_TotalKgs"))  
-    copyDown(ss.getRangeByName("ord_TotalCrates"))
-  } else {
-    copyDown(ss.getRangeByName("ord_TotalOrdered"))  
-  }
+  // copyDown(ss.getRangeByName("ord_Prices"))
+  // copyDown(ss.getRangeByName("ord_TotalOrdered"))  
   
-  // make units consistent  // buggy in dry - selecting the wrong column - no time to fix
-  if (isFresh) {
-    var range = ss.getRangeByName("ord_Unit")
-    var units = range.getValues()
-    var unit
-    for (var i=0; i<units.length; i++) {
-      unit = units[i][0].toString().toLowerCase()
-      if (unit === "each") {unit = "ea"}
-      units[i][0] = unit
-    }
-    range.setValues(units)
-  }
+  
+  // make units consistent...
+  var range = ss.getRangeByName("ord_Unit")
+  var data = range.getValues()
+  range.setValues(data.map(x => x[0].match(/each/i) ? ["ea"]
+                                                    : [x[0].toString().toLowerCase()]))
+
 }
+
 
 
 
@@ -231,10 +192,6 @@ function rolloverTotals() { // Copy curr order details to prev order, starting w
   copyNamedRange("tot_Current_Credits", "tot_Previous_Credits");
   
   SpreadsheetApp.getActiveSpreadsheet().getRangeByName("tot_Current_Credits").clearNote().clearContent();
-  if (isFRESH) {
-    ss.getRangeByName("tot_TiffCredits").setValue("=pho_PhoebeTiffShare");
-    //ss.getRangeByName("tot_PhoebeCredits").setValue("=pho_PhoebeTiffShare");
-  }
 }
 
 
@@ -283,7 +240,7 @@ function tellIT(msg, optUrl){
   var ss = SpreadsheetApp.getActiveSpreadsheet()
   var url = optUrl || ss.getUrl()
   var ssName = ss.getName()
-  var subject = ((isFRESH && "Fresh - coded message") || ("Dry - coded message"))
+  var subject = "Dry - coded message"
   var message = {to: IT_EMAIL,
                  subject: subject,
                  htmlBody: msg + "<br><br><a href='" + url + "'>" + ssName + "</a>"
@@ -378,41 +335,32 @@ function getNextPackDateFromFilename(){
 
 }
 
+function getCloseDate(){
+
+
+}
 
 function triggerReminders() {
   log('triggerReminders...')
 
-  if (isFRESH) {
-    var trigger = ScriptApp.newTrigger("sendReminderSMS")
-    .timeBased()
-    .inTimezone("Pacific/Auckland")
-    .onWeekDay(ScriptApp.WeekDay.MONDAY)
-    .atHour(18)
-    .create();
-  } else {
-    var trigger = ScriptApp.newTrigger("sendReminderSMS")
+  var trigger = ScriptApp.newTrigger("sendReminderSMS")
     .timeBased()
     .inTimezone("Pacific/Auckland")
     .onWeekDay(ScriptApp.WeekDay.SUNDAY)
     .atHour(16)
     .create();    
-  }
-  trigger.getUniqueId()
 
+  trigger.getUniqueId()
 }
+
 
 function rolloverRosters(){
   log('rolloverRosters...')
 
   var ss = SpreadsheetApp.getActiveSpreadsheet()
-  if (isFRESH){
-    ss.setNamedRange('Roster_This_Pack', ss.getRangeByName('Roster_This_Pack').offset(0,1))
-    ss.setNamedRange('Roster_Next_Pack', ss.getRangeByName('Roster_Next_Pack').offset(0,1))
-  } else {
-    var range = ss.getRangeByName('ros_This_Pack')
-    ss.getSheetByName('Roster').hideRows(range.getRow()-1, range.getNumRows()+2)
-    ss.setNamedRange('ros_This_Pack', range.offset(range.getNumRows()+2, 0))
-  }
+  var range = ss.getRangeByName('ros_This_Pack')
+  ss.getSheetByName('Roster').hideRows(range.getRow() - 1, range.getNumRows() + 2)
+  ss.setNamedRange('ros_This_Pack', range.offset(range.getNumRows()+2, 0))
 }
 
 function release(){// draft
@@ -439,7 +387,7 @@ function release(){// draft
 //  couldn't get this bit to work - try getting image from Photos?
 //  msg += brbr + "<img src='https://drive.google.com/open?id=0B8U6153AfrnmTTB5a2dsTlFxUklZTnBUTjY1VzB0Z3gySW1r'>"
   
-  var recipients = ""
+  var recipients = "affordableorganics07@gmail.com"
 //  var recipients = ((isFRESH && "mattrobin24@gmail.com,  matt.mcrae86@gmail.com"
 //                    + "") ||
 //                    ("affordableorganics07@gmail.com"))

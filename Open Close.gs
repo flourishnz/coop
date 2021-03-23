@@ -23,7 +23,7 @@ function closeOrdering(msg){
 }
 
 
-function setStatus(msg){
+function setStatus(msg = "Open"){
   SpreadsheetApp.getActiveSpreadsheet().getRangeByName("ord_Status").setValue(msg)
 }
 

@@ -19,6 +19,36 @@
  SAMPLEformatReleaseAcctDetails_(member) - NOT CALLED = possibly still the same as the one used when closing accounts
 */
 
+function makeSendGroup(max = 3){ 
+  var ids = ["7177"] //getNotSent().slice(0, max)
+  var sendGroup = ContactsApp.getContactGroup("sendGroup")
+  ids.map(x => addToGroup(x, sendGroup))
+}
+
+
+function getNotSent(){
+  // get data
+  var ss = SpreadsheetApp.getActiveSpreadsheet()
+  var idsRange = ss.getRangeByName("tot_IDs")
+  var totals = ss.getSheetByName("Totals")
+  var balances = totals.getRange(idsRange.getRow(), idsRange.getColumn()+1, 13, idsRange.getNumColumns() ).getDisplayValues()
+
+  // transpose, select not sent, sort to find members who owe the most, pass back just the ids
+  return ArrayLib.transpose(balances)
+    .filter(x => x[12] !== "sent")
+    .sort((a, b) => a[6] - b[6])
+    .map(x => x[0])
+}
+
+
+function markSent(id="7177", 
+                  ids=SpreadsheetApp.getActive().getRangeByName("tot_IDs").getDisplayValues()){
+  ss = SpreadsheetApp.getActive()
+  const statusRange = ss.getRangeByName("tot_Status")
+  const row = statusRange.getRow()
+  const col = ids[0].indexOf(id)
+  ss.getSheetByName("Totals").getRange(row, col).setValue("sent")
+}
 
 function getCustomerHistory(){  
   const sss = getSsSortByName("^Dry Orders Merged*")

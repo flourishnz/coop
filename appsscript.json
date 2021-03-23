@@ -1,0 +1,21 @@
+{
+  "timeZone": "Pacific/Auckland",
+  "dependencies": {
+    "libraries": [{
+      "userSymbol": "CoopLib",
+      "libraryId": "1Y4bC0UTuls87kdb0RmAZlgL5O0YFQZrJIypGtuD0AmnGSRldVb5htObS",
+      "version": "0",
+      "developmentMode": true
+    }, {
+      "userSymbol": "ArrayLib",
+      "libraryId": "1r9wNWbta3ebuYL4ENAdIp4UYKmyNiWf1AqsXYzfXduRHhTZEeTxS9MhZ",
+      "version": "23"
+    }, {
+      "userSymbol": "LodashGS",
+      "libraryId": "1SQ0PlSMwndIuOAgtVJdjxsuXueECtY9OGejVDS37ckSVbMll73EXf2PW",
+      "version": "6"
+    }]
+  },
+  "exceptionLogging": "STACKDRIVER",
+  "runtimeVersion": "V8"
+}
