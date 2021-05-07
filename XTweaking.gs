@@ -49,7 +49,7 @@ function runFreshReports(){
   var pckl = createReportFreshPacklist()
   var binl = createReportBinList() 
   if (pckl || binl) {
-    var msg = "Report results:\n"
+    varcreateReportChecklist
     msg += pckl ? "Created " + pckl + "\n" 
                 : "Pack list not created\n"
     msg += binl ? "Created " + binl + "\n" 

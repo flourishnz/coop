@@ -1,13 +1,15 @@
 // Developing DRY - Feb Jun 2018
+
+// v0.74 Rename reports
 // v0.4
 
 
-function createReportPickupChecklist() {
+function createReportChecklist() {
   
   var TEMPLATE_ID = '1KXMSjY6iFZjHoC20n9HJ26TeFY0T7CiIxp0A9OvDL-s'   // pickup checklist template
   var FOLDER_ID = '1Ur9LaAUeYzlIFxQ77bO3oj0hJ0UIDULc'                // reports go to dry/reports
   var packDate = getPackDateFromFilename()
-  var PDF_FILE_NAME = Utilities.formatDate(packDate, "GMT+12:00", "yyyy-MM-dd") + ' Dry Pick-up Checklist'
+  var PDF_FILE_NAME = Utilities.formatDate(packDate, "GMT+12:00", "yyyy-MM-dd") + ' Checklist'
 
   // Set up the docs and the spreadsheet access
   

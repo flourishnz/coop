@@ -1,6 +1,7 @@
 // DRY - Pack Lists 
 // June 2018 - Use document templates because Apps Script can't create a document with columns yet
 
+// v0.07 Rename reports and change printing order to suit new (temp) printer
 // v0.06
 
 function createReportOrders() {
@@ -9,7 +10,7 @@ function createReportOrders() {
   var FOLDER_ID = '1Ur9LaAUeYzlIFxQ77bO3oj0hJ0UIDULc'               // reports go to dry/reports
   
   var packDate = getPackDateFromFilename()
-  var PDF_FILE_NAME = Utilities.formatDate(packDate, "GMT+12:00", "yyyy-MM-dd") + ' Dry Pick-up Lists'
+  var PDF_FILE_NAME = Utilities.formatDate(packDate, "GMT+12:00", "yyyy-MM-dd") + ' Orders'
   
   if (TEMPLATE_ID === '') {   
     SpreadsheetApp.getUi().alert('TEMPLATE_ID needs to be defined in code.gs')
@@ -35,7 +36,7 @@ function createReportOrders() {
   header.replaceText('%PACKDATE%', Utilities.formatDate(packDate, "GMT+12:00", "EEEE, d MMMM yyyy"))
 
   // Get orders
-  var memberOrders = getDryOrdersByMember().reverse()
+  var memberOrders = getDryOrdersByMember()      //.reverse()
 
   
   //------------------------------------------------------------------------------------------------

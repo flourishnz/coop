@@ -1,4 +1,6 @@
 // STOCKTAKE
+
+// v0.11 Rename reports
 // v0.1
 
 
@@ -8,7 +10,7 @@ function createReportStocktake() {
   var FOLDER_ID = '1Ur9LaAUeYzlIFxQ77bO3oj0hJ0UIDULc'               // reports go to dry/reports
   
   var packDate = getPackDateFromFilename()
-  var PDF_FILE_NAME = Utilities.formatDate(packDate, "GMT+12:00", "yyyy-MM-dd") + ' Stocktake List'
+  var PDF_FILE_NAME = Utilities.formatDate(packDate, "GMT+12:00", "yyyy-MM-dd") + ' Stocktake'
   
   // Set up the docs and the spreadsheet access
   

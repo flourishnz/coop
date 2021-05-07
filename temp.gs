@@ -21,3 +21,10 @@ function getEmailsGroupB(id){
   var ssB = SpreadsheetApp.openById(ssID);
   return ssB.getEditors()
 }
+
+// function aaatemp(){
+// const str = "Ab12c"
+// var res = "P" + (parseInt(str.match(/\d+/)) +1)
+// say(res)
+// say(parseInt(str)+1)
+// }
