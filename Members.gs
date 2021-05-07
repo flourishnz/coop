@@ -3,6 +3,10 @@
 // STILL TO DO...: removeMember - revoke access,remove from contacts (other account),  
 //                 addMember - add to Contacts (other Account)
 
+//  removed Fresh code
+//  working on most recent order...
+//      update when an order is placed (on rollover is fine)
+//      look back through past orders to provide initial date
 // v2.52 change getLatestPayment to call getTransactions(id, 0) instead of getLatestTransactions - no functional change expected
 // v2.51 call formatOrders after adding new members
 // v2.5  4/6/20 Corrections to adding member and to updating contacts (id), also modifying add code to insert an old member in the correct place
@@ -300,42 +304,26 @@ function getMember(arg, ss=SpreadsheetApp.getActive()){// arg is Id or row numbe
   return toMember(data[i], ss)
 }
 
-function toMember(row, ss=SpreadsheetApp.getActiveSpreadsheet()) {
+function toMember(row, ss = SpreadsheetApp.getActiveSpreadsheet()) {
   var member = new Member(ss)
   var matches
-  if (!isValidId(row[MEM_ID_OFFSET])) {return {}}
-  
-  if (isDRY){    
-    member.id = row[0].toString()
-    member.firstName = row[1]
-    member.lastName = row[2]
-    member.name = row[1] + " " + row[2]
-    member.mobile = row[3].toString()
-    member.email = row[4]
-    member.otherPhone = row[5].toString()
-    member.gmailAccounts = row[6]
-    member.homeAddress = row[7]                                    
-  } else {
-    // Fresh
-    member.role = row[0]
-    member.id = row[1].toString()
-    
-    member.name = row[2].toString().trim()      
-    matches = /(\w+[-']?\w*)\W+(.*)/.exec(member.name)
-    member.firstName = matches[1]
-    member.lastName = matches[2]
+  if (!isValidId(row[MEM_ID_OFFSET])) { return {} }
 
-    member.email = row[3]
-    member.otherPhone = row[4].toString()
-    member.mobile = row[5].toString()
-    member.homeAddress = row[6] + (row[7] ? (', ' + row[7]) : '')                                 
-  }
+  member.id = row[0].toString()
+  member.firstName = row[1]
+  member.lastName = row[2]
+  member.name = row[1] + " " + row[2]
+  member.mobile = row[3].toString()
+  member.email = row[4]
+  member.otherPhone = row[5].toString()
+  member.gmailAccounts = row[6]
+  member.homeAddress = row[7]
 
   return member
 }
 
 
-function getPreMergeMember(id){// only Dry has this sheet - returns {} to Fresh
+function getPreMergeMember(id){
   log("Getting getPreMergeMember")
   try {
     var sheet = SpreadsheetApp.getActive().getSheetByName("preMergeMembers")
@@ -422,105 +410,61 @@ function removeMember(id) {
 
 
 
-function saveExMemberDetails_(member){// still needs refining...
+function saveExMemberDetails_(member) {// still needs refining...
   var sheet = SpreadsheetApp.getActive().getSheetByName('Ex Members')
-  var newRow = sheet.getLastRow() -1
-  sheet.insertRowAfter(newRow-1)    // inserted row is now newRow
+  var newRow = sheet.getLastRow() - 1
+  sheet.insertRowAfter(newRow - 1)    // inserted row is now newRow
 
-  if (isDRY){
-    var data = [[member.name, member.id, member.getCurrentBalanceDate(), member.getCurrentBalance(),
-                      '', '', '', '', '', '', '',
-                      member.id, member.name, member.email, member.mobile , member.homePhone]]
-    
-    sheet.getRange(newRow, 2, 1, data[0].length)
-         .setValues(data)
-    
-    // add formulae
-    sheet.getRange(newRow,  7).setFormula('=sumifs(bank_Amount, bank_Bin, ex_ID, bank_Date, ">" & ex_Date, bank_Amount, ">0")')     //deposits
-    sheet.getRange(newRow, 8).setFormula('=sumifs(bank_Amount, bank_Bin, ex_ID, bank_Date, ">" & ex_Date, bank_Amount, "<0")')      //refunds
-    sheet.getRange(newRow, 10).setFormulaR1C1('sum(R[0]C[-5]:R[0]C[-1])')                                                           //net balance
 
-  } else {//FRESH
-    var data = [[member.name, member.id,  '', '', member.getCurrentBalanceDate(), member.getCurrentBalance(),
-                     50, '', '', '', '', '', '', 
-                     member.id, member.name, member.email, member.mobile , member.homePhone, member.homeAddress]]
-    
-    sheet.getRange(newRow, 2, 1, data[0].length)
-         .setValues(data)
-    
-    // add formulae
-    sheet.getRange(newRow,  9).setFormulaR1C1('=sumifs(bank_Amount, bank_Bin, ex_ID, bank_Date, ">" & ex_Date, bank_Amount, ">0")')  //deposits
-    sheet.getRange(newRow, 10).setFormulaR1C1('=sumifs(bank_Amount, bank_Bin, ex_ID, bank_Date, ">" & ex_Date, bank_Amount, "<0")')  //refunds
-    sheet.getRange(newRow, 12).setFormulaR1C1('sum(R[0]C[-5]:R[0]C[-1])')                                                            //net balance
-  }
+  var data = [[member.name, member.id, member.getCurrentBalanceDate(), member.getCurrentBalance(),
+    '', '', '', '', '', '', '',
+  member.id, member.name, member.email, member.mobile, member.homePhone]]
+
+  sheet.getRange(newRow, 2, 1, data[0].length)
+    .setValues(data)
+
+  // add formulae
+  sheet.getRange(newRow, 7)
+    .setFormula('=sumifs(bank_Amount, bank_Bin, ex_ID, bank_Date, ">" & ex_Date, bank_Amount, ">0")')     //deposits
+  sheet.getRange(newRow, 8)
+    .setFormula('=sumifs(bank_Amount, bank_Bin, ex_ID, bank_Date, ">" & ex_Date, bank_Amount, "<0")')     //refunds
+  sheet.getRange(newRow, 10)
+    .setFormulaR1C1('sum(R[0]C[-5]:R[0]C[-1])')                                                           //net balance
 
 }
 
 
-function notifyRemoval(member, optUrl){
-  var subject = member.getFullName() + " has left the " + (isFRESH ? "Fresh" : "Dry") + " co-op"
-  member.leavingBalance = Number(member.getCurrentBalance()) + MEMBERSHIP_BOND
-  var details = formatAcctDetails_(member)
-  
-  var recentPayments = formatPayments_(member)
-  var link = formatLink(optUrl)
-  var autoGenMsg = brbr + "<small>This message was automatically generated. Please contact " +
-                    IT_NAME + " at " +  IT_EMAIL + " if you have any queries."; 
-  
-  
+function notifyRemoval(member, optUrl) {
+  member.leavingBalance = Number(member.getCurrentBalance())
+  const action = (member.leavingBalance > 0
+    ? " Please forward your account details to " + NICO_EMAIL + " so that Nico can arrange a refund." + brbr
+    : "Please contact Nico at " + NICO_EMAIL + " if you wish to make special payment arrangements." + brbr);
 
-//  if (isDRY) {
-    MailApp.sendEmail({
-      to: [IT_EMAIL].join(',') ,
-      subject: subject,
-      htmlBody: details + recentPayments + autoGenMsg
-      })
-//  } 
-//  else {// isFRESH
-//    // Co-op closed
-//    var closure = "At the recent AGM of Kapiti Fresh co-op, the members reluctantly voted to wind up the co-op." + brbr
-//    
-//    // notify Member, Treasurer and IT
-//    var action = (member.leavingBalance > 0 
-//      ? " Please forward your account details to " + TREASURER_EMAIL + " so that " + TREASURER_NAME + " can arrange a refund." + brbr
-//      : "Please contact our treasurer "
-//         + TREASURER_NAME + " at " + TREASURER_EMAIL + " if you wish to make special payment arrangements." + brbr);
-//  
-//    MailApp.sendEmail({
-//      to:[member.email, IT_EMAIL, TREASURER_EMAIL].join(','),
-//      subject: "Fresh co-op account deleted - " + member.getFullName(),
-//      htmlBody: "Hi " + member.firstName + brbr 
-//      + closure
-//      + "Your " 
-//      + (isFRESH ? "Fresh" : "Dry") 
-//      + " co-op account has been deleted. Your net balance is $" 
-//      + Math.abs(member.leavingBalance).toFixed(2) 
-//      + (member.leavingBalance<0 ? " in debit." : " in credit.")
-//      + brbr
-//      + action
-//      + details
-//      + recentPayments
-//      + autoGenMsg
-//    })
-//   
- 
-//    // notify Rosters officer
-//    MailApp.sendEmail({
-//      to:ROSTERS_EMAIL,
-//      subject: subject,
-//      htmlBody: "Hi " + ROSTERS_NAME + brbr
-//         + "Please remove " + member.firstName + " (" + member.id + ") from the rosters."
-//         + autoGenMsg
-//    })
+  const details = formatAcctDetails_(member)
+  const recentPayments = formatPayments_(member)
+  const autoGenMsg = brbr + "<small>This message was automatically generated. Please contact " +
+    IT_NAME + " at " + IT_EMAIL + " if you have any queries.";
+
+  const link = formatLink(optUrl)
   
-//    // notify Membership officer
-//    MailApp.sendEmail({
-//      to:MEMBERSHIP_EMAIL,
-//      subject: "FYI: " + subject,
-//      htmlBody: autoGenMsg
-//    })
-//    
-//  } //isFresh
+  MailApp.sendEmail({
+    to: IT_EMAIL,    //[member.email, IT_EMAIL, NICO_EMAIL].join(','),
+    subject: "Dry co-op account deleted - " + member.getFullName(),
+    htmlBody: "Hi " + member.firstName + brbr
+      + "Your Dry co-op account has been deleted. Your net balance is $"
+      + Math.abs(member.leavingBalance).toFixed(2)
+      + (member.leavingBalance < 0 ? " in debit." : " in credit.")
+      + brbr
+      + action
+      + details
+      + recentPayments
+      + autoGenMsg
+  })
+
+
+
+
+
 }
 
 function formatAcctDetails_(member){
@@ -530,14 +474,7 @@ function formatAcctDetails_(member){
   details += "<tr><td>Name</td><td>" + member.getFullName() + "</td></tr>"
   details += "<tr><td>Balance Date</td><td>" + date + "</td></tr>"
   
-  details += (isFRESH ? "<tr><td>Closing Balance</td><td>" + "$" + Math.abs(member.getCurrentBalance()).toFixed(2)
-                                                         + (member.getCurrentBalance()>=0 ? " in credit" 
-                                                                                          : " in debit")
-
-                        + "</td></tr>"
-                        + "<tr><td>Bond Refund</td><td>$50.00</td></tr>" 
-                      : "")
-  details += "<tr><td>Net Balance</td><td>" + "$" + Math.abs(member.leavingBalance).toFixed(2)
+  details += "<tr><td>Closing Balance</td><td>" + "$" + Math.abs(member.leavingBalance).toFixed(2)
                                                   +(member.leavingBalance>=0 ? " in credit" 
                                                                            : " in debit")
                                                   + "</td></tr>"

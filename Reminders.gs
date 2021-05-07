@@ -31,6 +31,7 @@ getMobilesHaventOrderedButDidLastTime -
 suspended              - 
 */
 
+// Removed Fresh references      11/4/21
 // v0.94 Fixed dry sms reminders 22/3/21
 // v0.93 Added doc at top, triying to fix the selection routines, which are mostly stuffed!
 // v0.92 Send alert to members who have ordered
@@ -72,30 +73,17 @@ function sendReminderSMS(){
   
   var re = /\(*02\d/;
 
-  if (isFRESH) {
-    var message = "A reminder to Fresh co-op members who have not yet ordered:\n  FRESH Orders will close " + closeDay +" at " + CLOSE_TIME + ".  "          //\n Please take a moment to order - the co-op works best when most members order. "  
-    var members = haventOrdered()  
-    var mobile
-        
-    for (var i=0; i < members.length; i++){
-      mobile = getMobile(members[i][0])
-      if (re.test(mobile)) {
-        CoopLib.sendSMS(mobile, message)
-        log(["Sent reminder to ", mobile])
-      }
-    }
-  } 
-  else {
-    var message = "A reminder to DRY co-op members who have not yet ordered:\n Dry orders will close " + closeDay +" at " +       CLOSE_TIME + ".  "
-    var mobiles = getMobilesHaventOrderedButDidLastTime()
-    for (var i=0; i < mobiles.length; i++){
-      if (re.test(mobiles[i])) {
-        CoopLib.sendSMS(mobiles[i], message)
-        log(["Sent reminder to ", mobiles[i]])
-      }
+
+  var message = "A reminder to DRY co-op members who have not yet ordered:\n Dry orders will close " + closeDay + " at " + CLOSE_TIME + ".  "
+  var mobiles = getMobilesHaventOrderedButDidLastTime()
+  for (var i = 0; i < mobiles.length; i++) {
+    if (re.test(mobiles[i])) {
+      CoopLib.sendSMS(mobiles[i], message)
+      log(["Sent NO RECENT ORDER reminder to ", mobiles[i]])
     }
   }
 }
+
 
 function sendAlertHaveOrdered(){
   var message = "Dry goods pick-up has been postponed until Tuesday and Wednesday because the food has not arrived.\n\n Please let Nico know if you can help unpack the pallet on Monday."
@@ -225,7 +213,11 @@ function getMembersHaventOrderedButDidLastTime(){
                                             x.getCurrentOrder() == -MIN_ORDER_FEE && 
                                             x.getPreviousOrder() < -MIN_ORDER_FEE)
 }
-                    
+
+function t1() {
+  Logger.log(getMembersHaventOrderedAgain().map(x => [x.name, x.mobile]))
+
+}                  
 function getMembersHaventOrderedAgain(){
   return members = getMembers().filter(x => MIN_ORDER_FEE &&
                                             x.getCurrentOrder() == -MIN_ORDER_FEE &&
@@ -380,11 +372,3 @@ function suspended(){
   }
   return list
 }
-
-
-
-//function refreshFreshDirect(){//don't need this anymore
-//  var ss = SpreadsheetApp.getActiveSpreadsheet()
-//  var sheet = ss.getSheetByName("T O")
-//  sheet.insertRowBefore(1).deleteRow(1)
-//}

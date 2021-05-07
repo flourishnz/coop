@@ -1,5 +1,10 @@
 // CODE.GS
 
+// v1.41 Also added DB_ID, 
+//          changed menus to match new report names
+//          removed some email constants only used for Fresh
+//          provide a default file search spec
+//          getSsNames and getSheets  modified to limit return of sheets (for testing)
 // v1.4 Removed Fresh code
 //      Renaming entries in Reports menu
 // v1.3 moved isValidId from Statements to Code
@@ -30,6 +35,8 @@ const _ = LodashGS.load()
 
 isFRESH = false
 isDRY = true
+
+DB_ID = "112W9W5XnF5sMXrSU-Xwx6pNcz-ysvHya9Bp-uNYvcs8"
 FIRST_ORDER_COLUMN = 9
 FIRST_ORDER_ROW = 6
 
@@ -51,11 +58,7 @@ CLOSE_DAY = "Monday"
 CLOSE_TIME = "6:00 pm"
 MIN_ORDER_FEE = 2
 
-COOP_EMAIL = "affordableorganics07@gmail.com"
-
-TREASURER_EMAIL = "affordableorganics07@gmail.com"
-ROSTERS_EMAIL = "affordableorganics07@gmail.com"
-MEMBERSHIP_EMAIL = "affordableorganics07@gmail.com"
+NICO_EMAIL = "affordableorganics07@gmail.com"
 
 IT_EMAIL = "kapitidry.coop@gmail.com"
 IT_NAME = "Julie"
@@ -84,7 +87,7 @@ function onOpen() {
       .createMenu('Reports')
       .addItem('All pack reports', 'runDryReports')
       .addItem('Orders', 'createReportOrders')
-      .addItem('Checklist', 'createReportPickupChecklist')
+      .addItem('Checklist', 'createReportChecklist')
       .addItem('Stocktake', 'createReportStocktake')
     )
 
@@ -107,10 +110,9 @@ function onOpen() {
 
 }
 
-
-
  
 function onEdit(e){
+  
   var srcSheet = e.range.getSheet()
   if (srcSheet.getName() === "Orders"){
     var logSheet = e.source.getSheetByName("Change Log")
@@ -316,7 +318,7 @@ function getPreTweakedProduct(product){
 //--------
 
 function getSsNames(){// WORKS but VERY slow - opens all files to get names...
-  const files = getSsSortByName("^Dry Orders Merged*")
+  const files = getSsSortByName("^Dry Orders Merged 2021")
   log(files.map(sheet => SpreadsheetApp.open(sheet).getName()))
 }
 
@@ -325,7 +327,7 @@ function getSsSortByName(searchStr) {// returns sorted array of matching file ob
 }
 
 
-function getSheets(searchStr) { // change returns...
+function getSheets(searchStr = "^Dry Orders Merged") { // change returns...
   var ss = SpreadsheetApp.getActiveSheet();
   var files = DriveApp.getFilesByType(MimeType.GOOGLE_SHEETS);
   var filesArray = []
@@ -338,6 +340,8 @@ function getSheets(searchStr) { // change returns...
   }
   return filesArray
 }
+
+
 
 
 function getLatestSS(optSearchStr){ //actually gets last in alphabetical order
@@ -408,5 +412,5 @@ function reducePenalty(){//correct price from 20% penalty loading to 10% loading
 }
 
 function sharePdfPacksheets(pdf){
-  pdf.addViewers([COOP_EMAIL])  
+  pdf.addViewers([NICO_EMAIL])  
 }

@@ -1,5 +1,6 @@
 // ROLLOVER
 
+//        Save id/date/name/balance for each order completed in current orders (run just before rollover)
 // v2.01  refreshOrders: Repair code to make units consistent
 // v2.00 Removed Fresh code
 // v1.99  generalise notify to notify(recipients, subject, msg), special case notifyNico()
@@ -32,8 +33,8 @@
 //   16 July 16 clear notes from rollover totals
 
 function createOrderSheet(){// developing... this code may not run from within a sheet - needs to be in lib
-  var oldSS = SpreadsheetApp.getActiveSpreadsheet();
-  var newSS = oldSS.copy("Fresh auto created test sheet")
+  const oldSS = SpreadsheetApp.getActiveSpreadsheet();
+  const newSS = oldSS.copy("Fresh auto created test sheet")
   
   SpreadsheetApp.setActiveSpreadsheet(newSS)
   
@@ -51,6 +52,8 @@ function rollover() {//Rollover order - preparing new sheet
     
     setStatus("Not ready");
     setRolledOver();        // if it falls over and is incomplete, we do not want to be able to run it again without cleaning up the mess
+
+    noteMembersHaveOrdered()
     rolloverTotals(); 
     rolloverDates();
 
@@ -320,8 +323,8 @@ function reportRolloverStatus(){
 
 //--------------------------------------
   
-function getPackDateFromFilename(){
-  var name = SpreadsheetApp.getActiveSpreadsheet().getName()
+function getPackDateFromFilename(ss = SpreadsheetApp.getActive()){
+  var name = ss.getName()
   var re = /\b(19|20\d\d)([-\/])(0[1-9]|1[012])\2(0[1-9]|[12][0-9]|3[01])\b/;      //matches: full date, year,  separator,  month, day
   var matches = re.exec(name)
 
@@ -402,4 +405,58 @@ function release(){// draft
   // send notification to all members
 
   MailApp.sendEmail(message)
+}
+
+/********
+ * 
+ * One-off code - step through sheets and log accounts to Dry DB
+ *    applies noteMembersHaveOrdered to all post merge sheets
+ *    Should only be run to fix problems - delete the existing data first
+ */
+
+function getPastAccountBalancesForDB(){  
+  const sss = getSsSortByName("^Dry Orders Merged 20")
+  sss.map(x => noteMembersHaveOrdered(SpreadsheetApp.open(x)))
+
+}
+
+/***********
+ * 
+ * Collects data from Totals sheet and adds to PastOrderTotals in Dry DB
+ * should be called during rollover, prior to reset of new sheet
+ */ 
+
+function noteMembersHaveOrdered(ss = SpreadsheetApp.getActiveSpreadsheet()) {
+
+  const packDate = getPackDateFromFilename(ss)
+
+  const totIDs = ss.getRangeByName("tot_IDs").getDisplayValues()[0]
+  const names = ss.getRangeByName("tot_members").getValues()[0]
+  const currOrders = ss.getRangeByName("tot_Current_Orders").getValues()[0]
+  const currCredits = ss.getRangeByName("tot_Current_Credits").getValues()[0]
+  const provBalances = ss.getRangeByName("tot_Provisional_Balances").getValues()[0]  // provBalances are about to become current
+
+
+  var data = ArrayLib.transpose([totIDs, names, currOrders, currCredits, provBalances])
+  
+  // dispose of the last row of data as this represents the final formatting column in the totals spreadsheet
+  data.pop()
+
+  // select those who have ordered or been credited, and include packDate
+  data = data.filter(x => x[2] < -MIN_ORDER_FEE || x[3] !== 0).map(x => [x[0], packDate, x[1], x[2], x[3], x[4]])
+
+  //write data array to PastOrderTotals in DRY DB
+  const ssDry = SpreadsheetApp.openById(DB_ID)
+  const sheet = ssDry.getSheetByName("PastOrderTotals")
+  sheet.getRange(sheet.getLastRow() + 1, 1, data.length, data[0].length)
+    .setValues(data)
+
+  // get start and end dates for this pack
+  const payStart = ss.getRangeByName("tot_Current_Pay_Start").getValue()
+  const payEnd = ss.getRangeByName("tot_Current_Pay_End").getValue()
+
+  const packSheet = ssDry.getSheetByName("Packs")
+  const prevID = packSheet.getRange(packSheet.getLastRow(), 1).getValue()
+  const newID = "P"+ (parseInt(prevID.match(/\d+/)) +1)
+  packSheet.appendRow([newID, packDate, payStart, payEnd])
 }
