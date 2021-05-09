@@ -86,7 +86,7 @@ function sendReminderSMS(){
 
 
 function sendAlertHaveOrdered(){
-  var message = "Dry goods pick-up has been postponed until Tuesday and Wednesday because the food has not arrived.\n\n Please let Nico know if you can help unpack the pallet on Monday."
+  var message = "Dry Co-op: Reminder: Please collect your order today by 6pm or on Monday between 2pm and 6pm, if you have not already collected it."
   var mobiles = getMobilesHaveOrdered()
   sendText(message, mobiles)
 }

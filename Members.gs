@@ -4,9 +4,6 @@
 //                 addMember - add to Contacts (other Account)
 
 //  removed Fresh code
-//  working on most recent order...
-//      update when an order is placed (on rollover is fine)
-//      look back through past orders to provide initial date
 // v2.52 change getLatestPayment to call getTransactions(id, 0) instead of getLatestTransactions - no functional change expected
 // v2.51 call formatOrders after adding new members
 // v2.5  4/6/20 Corrections to adding member and to updating contacts (id), also modifying add code to insert an old member in the correct place

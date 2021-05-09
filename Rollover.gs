@@ -1,6 +1,12 @@
 // ROLLOVER
 
-//        Save id/date/name/balance for each order completed in current orders (run just before rollover)
+/*** *       
+ * May 2021 Added noteMembersHaveOrdered and
+ *                getPastAccountBalancesForDB which runs above function against all past spreadsheets in turn
+ * 
+ *  noteMembersHaveOrdered : Saves id/date/name/balance for each order completed in current orders (run just before rollover)
+ * 
+ ***/
 // v2.01  refreshOrders: Repair code to make units consistent
 // v2.00 Removed Fresh code
 // v1.99  generalise notify to notify(recipients, subject, msg), special case notifyNico()
@@ -31,6 +37,8 @@
 //   30-July 16 rollover all dates
 //   25-July 16 fix syntax error
 //   16 July 16 clear notes from rollover totals
+
+
 
 function createOrderSheet(){// developing... this code may not run from within a sheet - needs to be in lib
   const oldSS = SpreadsheetApp.getActiveSpreadsheet();

@@ -3,8 +3,7 @@
 // v1.41 Also added DB_ID, 
 //          changed menus to match new report names
 //          removed some email constants only used for Fresh
-//          provide a default file search spec
-//          getSsNames and getSheets  modified to limit return of sheets (for testing)
+//          provided a default file search spec
 // v1.4 Removed Fresh code
 //      Renaming entries in Reports menu
 // v1.3 moved isValidId from Statements to Code
@@ -318,7 +317,7 @@ function getPreTweakedProduct(product){
 //--------
 
 function getSsNames(){// WORKS but VERY slow - opens all files to get names...
-  const files = getSsSortByName("^Dry Orders Merged 2021")
+  const files = getSsSortByName("^Dry Orders Merged*")
   log(files.map(sheet => SpreadsheetApp.open(sheet).getName()))
 }
 
